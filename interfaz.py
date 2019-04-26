@@ -4,6 +4,22 @@ from PIL import Image, ImageTk
 
 
 def cargarPantallaInicio():
+    """Carga la pantalla de inicio del juego
+
+    Entradas:
+        No recibe
+    Precondiciones:
+        No hay
+    Salidas:
+        No retorna nada
+    Proceso:
+        1. Se inicializa la variable "root" y se configura la ventana
+        2. Se configura un objeto Canvas para las dimensiones de la imagen
+        3. Se obtiene la imagen en un objeto manipulable para Tkinter
+        4. La imagen se inserta en el Canvas
+        5. El boton "Jugar" es creado, luego se configuta y se inserta
+        en la venatana
+    """
     root = tkinter.Tk()
 
     root.title("BattleShip v1.0.0")
@@ -23,6 +39,19 @@ def cargarPantallaInicio():
 
 
 def cargarPantallaConfiguracion(ventanaActual):
+    """Carga la pantalla de configuración del juego
+
+    Entradas:
+        ventanaActual: un objeto que representa la ventana que se
+        está corriendo
+    Precondicones:
+        ventanaActual tiene que ser una ventana que se esté
+        ejecutando
+    Salidas:
+        No retorna nada
+    Proceso:
+        
+    """
     ventanaActual.destroy()
 
     root = tkinter.Tk()
