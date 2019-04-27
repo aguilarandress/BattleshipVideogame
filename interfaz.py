@@ -58,6 +58,8 @@ def cargarPantallaConfiguracion(ventanaActual):
         5. Se inserta un boton de continuar
         6. Se inicia el "mainloop" de la ventana
     """
+    global matrizTableroUsuario
+
     ventanaActual.destroy()
 
     root = tkinter.Tk()
@@ -67,22 +69,33 @@ def cargarPantallaConfiguracion(ventanaActual):
     contenedorTablero.grid(row=0, column=0)
 
     # Crear matriz para tablero de juego
-    matrizTablero = [[j*0 for j in range(10)] for i in range(10)]
-
-    print(matrizTablero)
+    matrizTableroUsuario = [[str(i) + str(j) for j in range(10)] for i in range(10)]
 
     # Insertar matriz en el tablero
-    for fila in range(len(matrizTablero)):
-        for columna in range(len(matrizTablero[fila])):
+    for fila in range(len(matrizTableroUsuario)):
+        for columna in range(len(matrizTableroUsuario[fila])):
             boton = Button(contenedorTablero, text="   ")
+
+            matrizTableroUsuario[fila][columna] = boton
             boton.grid(row=fila, column=columna)
+
+            boton.bind("<Button-1>", eventoClick)
+
+    print(matrizTableroUsuario)
 
     # TODO: Insertar el resto de la interfaz en la pantalla de juego
 
-    boton = Button(root, text="Continuar", command=lambda: cargarPantallaJuego(root))
-    boton.grid(row= 1, column=0)
+    botonJugar = Button(root, text="Continuar", command=lambda: cargarPantallaJuego(root))
+    botonJugar.grid(row= 1, column=0)
 
     root.mainloop()
+
+
+def eventoClick(event):
+    boton = event.widget
+    infoPosicion = boton.grid_info()
+
+    print(infoPosicion["row"], infoPosicion["column"])
 
 
 def cargarPantallaJuego(ventanaActual):
@@ -119,4 +132,5 @@ def cargarPantallaFinJuego(ventanaActual):
     root.mainloop()
 
 
+matrizTableroUsuario = []
 cargarPantallaInicio()
