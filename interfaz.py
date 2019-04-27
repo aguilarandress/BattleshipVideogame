@@ -17,7 +17,7 @@ def cargarPantallaInicio():
         2. Se configura un objeto Canvas para las dimensiones de la imagen
         3. Se obtiene la imagen en un objeto manipulable para Tkinter
         4. La imagen se inserta en el Canvas
-        5. El boton "Jugar" es creado, luego se configuta y se inserta
+        5. El boton "Jugar" es creado, luego se configura y se inserta
         en la ventana
     """
     root = tkinter.Tk()
@@ -50,15 +50,37 @@ def cargarPantallaConfiguracion(ventanaActual):
     Salidas:
         No retorna nada
     Proceso:
-        
+        1. Se destruye la ventana actual y se crea una nueva
+        2. Se crea un contenedor para el tablero
+        3. Una matriz 10x10 es creada con "list comprehensions"
+        4. Con un ciclo for anidado se crea la matriz de botones en
+        el tablero
+        5. Se inserta un boton de continuar
+        6. Se inicia el "mainloop" de la ventana
     """
     ventanaActual.destroy()
 
     root = tkinter.Tk()
     root.title("BattleShip - Configuración")
 
+    contenedorTablero = Frame(root)
+    contenedorTablero.grid(row=0, column=0)
+
+    # Crear matriz para tablero de juego
+    matrizTablero = [[j*0 for j in range(10)] for i in range(10)]
+
+    print(matrizTablero)
+
+    # Insertar matriz en el tablero
+    for fila in range(len(matrizTablero)):
+        for columna in range(len(matrizTablero[fila])):
+            boton = Button(contenedorTablero, text="   ")
+            boton.grid(row=fila, column=columna)
+
+    # TODO: Insertar el resto de la interfaz en la pantalla de juego
+
     boton = Button(root, text="Continuar", command=lambda: cargarPantallaJuego(root))
-    boton.grid(row= 0, column=0)
+    boton.grid(row= 1, column=0)
 
     root.mainloop()
 
@@ -68,6 +90,8 @@ def cargarPantallaJuego(ventanaActual):
 
     root = tkinter.Tk()
     root.title("BattleShip - Pantalla de Juego")
+
+    #TODO: Insertar el resto de la pantalla de juego
 
     boton = Button(root, text="Continuar", command=lambda: cargarPantallaFinJuego(root))
     boton.grid(row=0, column=0)
