@@ -18,7 +18,7 @@ def cargarPantallaInicio():
         3. Se obtiene la imagen en un objeto manipulable para Tkinter
         4. La imagen se inserta en el Canvas
         5. El boton "Jugar" es creado, luego se configuta y se inserta
-        en la venatana
+        en la ventana
     """
     root = tkinter.Tk()
 
