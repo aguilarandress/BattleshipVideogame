@@ -66,7 +66,7 @@ def cargarPantallaConfiguracion(ventanaActual):
     root.title("BattleShip - Configuración")
 
     contenedorTablero = Frame(root)
-    contenedorTablero.grid(row=0, column=0)
+    contenedorTablero.grid(row=0, column=0, padx=20, pady=50)
 
     # Crear matriz para tablero de juego
     matrizTableroUsuario = [[str(i) + str(j) for j in range(10)] for i in range(10)]
@@ -74,19 +74,54 @@ def cargarPantallaConfiguracion(ventanaActual):
     # Insertar matriz en el tablero
     for fila in range(len(matrizTableroUsuario)):
         for columna in range(len(matrizTableroUsuario[fila])):
-            boton = Button(contenedorTablero, text="   ")
+            boton = Button(contenedorTablero, text="   ", padx=6, pady=4)
 
             matrizTableroUsuario[fila][columna] = boton
-            boton.grid(row=fila, column=columna)
+            boton.grid(row=fila, column=columna, padx=5, pady=5)
 
             boton.bind("<Button-1>", eventoClick)
 
-    print(matrizTableroUsuario)
+    # Crear simbologia
+    contenedorSimbologia = Frame(root)
+    contenedorSimbologia.grid(row=0, column=1)
 
-    # TODO: Insertar el resto de la interfaz en la pantalla de juego
+    etiquetaSimbologia = Label(contenedorSimbologia, text="Simbología", anchor=W)
+    etiquetaSimbologia.grid(row=0, column=0, pady=10)
+
+    infoSimbologia = [
+        ("", "Espacio sin tocar", ""),
+        ("1", "Portaviones", "blue"),
+        ("2", "Acorazado", "yellow"),
+        ("3", "Buque de Guerra", "magenta"),
+        ("4", "Submarino", "cyan"),
+        ("5", "Destructor", "grey")
+    ]
+
+    # Insertar tabla de simbologia con botones con colores y sus etiquetas
+    for i in range(len(infoSimbologia)):
+        boton = Button(contenedorSimbologia, text=infoSimbologia[i][0], padx=5, pady=5)
+        if i != 0:
+            boton.config(bg=infoSimbologia[i][2], font=("helvetica", 15, "bold"))
+        else:
+            boton.config(padx=13, pady=13)
+
+        boton.grid(row=i + 1, column=0, sticky=W, pady=10)
+
+        etiqueta = Label(contenedorSimbologia, text=infoSimbologia[i][1], padx=35,)
+        etiqueta.grid(row=i + 1, column=1, pady=10)
+
+    # Crear tabla de opciones
+    contenedorOpciones = Frame(root)
+    contenedorOpciones.grid(row=1, column=1)
+
+    etiquetaOpciones = Label(contenedorOpciones, text="Configurar tablero")
+    etiquetaOpciones.grid(row=0, column=0)
+
+    # TODO: Crear tabla de configuraciones y opciones
 
     botonJugar = Button(root, text="Continuar", command=lambda: cargarPantallaJuego(root))
-    botonJugar.grid(row= 1, column=0)
+    botonJugar.grid(row=1, column=0, sticky=W)
+    botonJugar.config(font=("helvetica", 12, "underline"))
 
     root.mainloop()
 
