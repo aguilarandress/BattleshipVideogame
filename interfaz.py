@@ -60,6 +60,7 @@ def cargarPantallaConfiguracion(ventanaActual):
         6. Se inicia el "mainloop" de la ventana
     """
     global matrizTableroUsuario
+    global informacionBarcos
 
     ventanaActual.destroy()
 
@@ -67,12 +68,9 @@ def cargarPantallaConfiguracion(ventanaActual):
     root.title("BattleShip - Configuración")
 
     contenedorTablero = Frame(root)
-    contenedorTablero.grid(row=0, column=0, padx=20, pady=50)
+    contenedorTablero.grid(row=0, column=0, padx=10, pady=10)
 
-    # Crear matriz para tablero de juego
-    matrizTableroUsuario = [[str(i) + str(j) for j in range(10)] for i in range(10)]
-
-    # Insertar matriz en el tablero
+    # Insertar matriz de botones en el tablero
     for fila in range(len(matrizTableroUsuario)):
         for columna in range(len(matrizTableroUsuario[fila])):
             boton = Button(contenedorTablero, text="   ", padx=6, pady=4)
@@ -89,34 +87,25 @@ def cargarPantallaConfiguracion(ventanaActual):
     etiquetaSimbologia = Label(contenedorSimbologia, text="Simbología", anchor=W)
     etiquetaSimbologia.grid(row=0, column=0, pady=10)
 
-    infoSimbologia = [
-        ("", "Espacio sin tocar", ""),
-        ("1", "Portaviones", "blue"),
-        ("2", "Acorazado", "yellow"),
-        ("3", "Buque de Guerra", "magenta"),
-        ("4", "Submarino", "cyan"),
-        ("5", "Destructor", "grey")
-    ]
-
     # Insertar tabla de simbologia con botones con colores y sus etiquetas
-    for i in range(len(infoSimbologia)):
-        boton = Button(contenedorSimbologia, text=infoSimbologia[i][0], padx=5, pady=5)
-        if i != 0:
-            boton.config(bg=infoSimbologia[i][2], font=("helvetica", 15, "bold"))
-        else:
+    for i in range(len(informacionBarcos)):
+        boton = Button(contenedorSimbologia, text=informacionBarcos[i][0], padx=5, pady=5)
+        if informacionBarcos[i][1] == "Espacio sin tocar":
             boton.config(padx=13, pady=13)
+        else:
+            boton.config(bg=informacionBarcos[i][2], font=("helvetica", 15, "bold"))
 
-        boton.grid(row=i + 1, column=0, sticky=W, pady=10)
+        boton.grid(row=i + 1, column=0, sticky=W, pady=5)
 
-        etiqueta = Label(contenedorSimbologia, text=infoSimbologia[i][1], padx=35,)
-        etiqueta.grid(row=i + 1, column=1, pady=10)
+        etiqueta = Label(contenedorSimbologia, text=informacionBarcos[i][1], padx=30)
+        etiqueta.grid(row=i + 1, column=1, pady=5)
 
     # Crear tabla de opciones
     contenedorOpciones = Frame(root)
     contenedorOpciones.grid(row=1, column=1)
 
     etiquetaOpciones = Label(contenedorOpciones, text="Configurar tablero")
-    etiquetaOpciones.grid(row=0, column=0)
+    etiquetaOpciones.grid(row=0, column=0, pady=(0, 15))
 
     etiquetaAgregar = Label(contenedorOpciones, text="Añadir")
     etiquetaAgregar.grid(row=1, column=0)
@@ -216,7 +205,16 @@ def cargarPantallaFinJuego(ventanaActual):
 
 
 # Variables globales
-matrizTableroUsuario = []
+matrizTableroUsuario = [[str(i) + str(j) for j in range(10)] for i in range(10)]
+informacionBarcos = [
+    ("", "Espacio sin tocar", ""),
+    ("1", "Portaviones", "blue"),
+    ("2", "Acorazado", "yellow"),
+    ("3", "Buque de Guerra", "magenta"),
+    ("4", "Submarino", "cyan"),
+    ("5", "Destructor", "grey")
+]
 dicInstrucciones = {"Horizontal": False, "Vertical": False, "Positivo": False, "Negativo": False}
+
 # Inicio del juego
 cargarPantallaInicio()
