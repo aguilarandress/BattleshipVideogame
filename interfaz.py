@@ -146,8 +146,10 @@ def cargarPantallaConfiguracion(ventanaActual):
             botonesCofig[i][j] = radButton
             
     '''
-    horiVariable =  posVariable = negVariable = vertiVariable = BooleanVar()
-
+    horiVariable = BooleanVar()
+    posVariable = BooleanVar()
+    negVariable = BooleanVar()
+    vertiVariable = BooleanVar()
     horiVariable.set(0)
     vertiVariable.set(0)
     posVariable.set(0)
@@ -168,7 +170,7 @@ def cargarPantallaConfiguracion(ventanaActual):
 
         radioButton.grid(row=fila, column=columna, padx = 20, pady = 10)
         radBotones.append(radioButton)
-    
+
 
 
     # TODO: Crear tabla de configuraciones y opciones
