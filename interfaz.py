@@ -119,12 +119,12 @@ def cargarPantallaConfiguracion(ventanaActual):
     etiquetaOpciones = Label(contenedorOpciones, text="Configurar tablero")
     etiquetaOpciones.grid(row=0, column=0)
 
-    anadir = Label(contenedorOpciones, text='Añadir')
-    anadir.grid( row=1, column=0)
+    anadir = Label(contenedorOpciones, text = 'Añadir')
+    anadir.grid( row = 1, column = 0)
 
-    menuDesple = ttk.Combobox(contenedorOpciones, state='readonly')
+    menuDesple = ttk.Combobox(contenedorOpciones, state = 'readonly')
     menuDesple['values'] = ['Portaviones','Acorazado', 'Buque de Guerra', 'Submarino', 'Destructor']
-    menuDesple.grid(row=1, column=1, padx=20)
+    menuDesple.grid(row = 1, column = 1, padx= 20)
 
     '''
     botonesCofig = [
@@ -146,36 +146,48 @@ def cargarPantallaConfiguracion(ventanaActual):
             botonesCofig[i][j] = radButton
             
     '''
-    horiVariable = BooleanVar()
-    posVariable = BooleanVar()
-    negVariable = BooleanVar()
-    vertiVariable = BooleanVar()
-    horiVariable.set(0)
-    vertiVariable.set(0)
-    posVariable.set(0)
-    negVariable.set(0)
+    horiVertiVariable = BooleanVar()
+    negPosVariable = BooleanVar()
+    horiVertiVariable.set(0)
+    negPosVariable.set(0)
 
     # Texto, Variable, Valor, Fila, Columna
-    radConfig = (
-        ("Horizontal", horiVariable, 1, 2, 0),
-        ("Vertical", vertiVariable, 1, 2, 1),
-        ("Positivo", posVariable, 1, 3, 0),
-        ("Negativo", negVariable, 1, 3, 1)
+    radCondfig = (
+        ('Horizontal', horiVertiVariable, 1, 2, 0),
+        ('Vertical', horiVertiVariable, 2, 2, 1),
+        ('Positivo', negPosVariable, 3, 3, 0),
+        ('Negativo', negPosVariable, 4, 3, 1)
+
     )
 
     radBotones = []
-    for text, variable, valor, fila, columna in radConfig:
-        radioButton = Radiobutton(contenedorOpciones, text=text, variable=variable, value=valor)
-        radioButton.grid(row=fila, column=columna, padx=20, pady=10)
+    for text, variable, valor, fila, columna in radCondfig:
+        radioButton = Radiobutton(contenedorOpciones, text=text, variable=variable, value=valor, command=lambda \
+        text = text, variable = variable:configuracionTablero(text, variable.get()) )
+        radioButton.grid(row=fila, column=columna, padx = 20, pady = 10)
         radBotones.append(radioButton)
 
     # TODO: Crear tabla de configuraciones y opciones
+
     botonJugar = Button(root, text="Continuar", command=lambda: cargarPantallaJuego(root))
     botonJugar.grid(row=1, column=0, sticky=W)
     botonJugar.config(font=("helvetica", 12, "underline"))
 
     root.mainloop()
-
+def configuracionTablero(pos = "", valor = False):
+    global dicInstrucciones
+    print(dicInstrucciones)
+    if pos != "" and valor != False:
+        dicInstrucciones[pos] = valor
+        if pos == "Horizontal":
+            dicInstrucciones["Vertical"] = False
+        elif pos == "Vertical":
+            dicInstrucciones["Horizontal"] = False
+        elif pos == "Positivo":
+            dicInstrucciones["Negativo"] = False
+        else:
+            dicInstrucciones["Positivo"] = False
+    print(dicInstrucciones)
 
 def eventoClick(event):
     boton = event.widget
@@ -217,6 +229,6 @@ def cargarPantallaFinJuego(ventanaActual):
 
     root.mainloop()
 
-
+dicInstrucciones = {"Horizontal": False, "Vertical": False, "Positivo": False, "Negativo": False}
 matrizTableroUsuario = []
 cargarPantallaInicio()
