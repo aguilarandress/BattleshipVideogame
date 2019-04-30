@@ -1,7 +1,8 @@
 import tkinter
 from tkinter import *
-from PIL import Image, ImageTk
 from tkinter import ttk
+from PIL import Image, ImageTk
+
 
 def cargarPantallaInicio():
     """Carga la pantalla de inicio del juego
@@ -79,7 +80,7 @@ def cargarPantallaConfiguracion(ventanaActual):
             matrizTableroUsuario[fila][columna] = boton
             boton.grid(row=fila, column=columna, padx=5, pady=5)
 
-            boton.bind("<Button-1>", eventoClick)
+            boton.bind("<Button-1>", posicionarBarco)
 
     # Crear simbologia
     contenedorSimbologia = Frame(root)
@@ -87,8 +88,6 @@ def cargarPantallaConfiguracion(ventanaActual):
 
     etiquetaSimbologia = Label(contenedorSimbologia, text="Simbología", anchor=W)
     etiquetaSimbologia.grid(row=0, column=0, pady=10)
-
-
 
     infoSimbologia = [
         ("", "Espacio sin tocar", ""),
@@ -119,64 +118,55 @@ def cargarPantallaConfiguracion(ventanaActual):
     etiquetaOpciones = Label(contenedorOpciones, text="Configurar tablero")
     etiquetaOpciones.grid(row=0, column=0)
 
-    anadir = Label(contenedorOpciones, text = 'Añadir')
-    anadir.grid( row = 1, column = 0)
+    etiquetaAgregar = Label(contenedorOpciones, text="Añadir")
+    etiquetaAgregar.grid(row=1, column=0)
 
-    menuDesple = ttk.Combobox(contenedorOpciones, state = 'readonly')
-    menuDesple['values'] = ['Portaviones','Acorazado', 'Buque de Guerra', 'Submarino', 'Destructor']
-    menuDesple.grid(row = 1, column = 1, padx= 20)
+    # Crear menu despegable
+    menuDesplegable = ttk.Combobox(contenedorOpciones, state="readonly")
+    menuDesplegable["values"] = ["Portaviones", "Acorazado", "Buque de Guerra", "Submarino", "Destructor"]
+    menuDesplegable.grid(row=1, column=1, padx=20)
 
-    '''
-    botonesCofig = [
-    [['Horizontal'],['Positivo']],
-    [['Vertical'],['Negativo']]
-
-    ]
-    radBotonesValor = [[0,1],[0,1]]
-
-
-    for i in range(2):
-        for j in range(2):
-            variableRad = BooleanVar()
-            variableRad.set(0)
-            radButton = Radiobutton(contenedorOpciones, text = botonesCofig[i][j], variable=variableRad, value=1)
-            radButton.grid(row = i+2, column = j, padx= 20, pady= 20 )
-            opcion = variableRad.get()
-            radBotonesValor[i][-1] = opcion
-            botonesCofig[i][j] = radButton
-            
-    '''
     horiVertiVariable = BooleanVar()
     negPosVariable = BooleanVar()
     horiVertiVariable.set(0)
     negPosVariable.set(0)
 
     # Texto, Variable, Valor, Fila, Columna
-    radCondfig = (
-        ('Horizontal', horiVertiVariable, 1, 2, 0),
-        ('Vertical', horiVertiVariable, 2, 2, 1),
-        ('Positivo', negPosVariable, 3, 3, 0),
-        ('Negativo', negPosVariable, 4, 3, 1)
-
+    radCondfiguracion = (
+        ("Horizontal", horiVertiVariable, 1, 2, 0),
+        ("Vertical", horiVertiVariable, 2, 2, 1),
+        ("Positivo", negPosVariable, 3, 3, 0),
+        ("Negativo", negPosVariable, 4, 3, 1)
     )
 
+    # Creación de botones de radio para configuración
     radBotones = []
-    for text, variable, valor, fila, columna in radCondfig:
-        radioButton = Radiobutton(contenedorOpciones, text=text, variable=variable, value=valor, command=lambda \
-        text = text, variable = variable:configuracionTablero(text, variable.get()) )
-        radioButton.grid(row=fila, column=columna, padx = 20, pady = 10)
+    for text, variable, valor, fila, columna in radCondfiguracion:
+        radioButton = Radiobutton(contenedorOpciones, text=text, variable=variable, value=valor, \
+        command=lambda text=text, variable=variable: configuracionTablero(text, variable.get()))
+
+        radioButton.grid(row=fila, column=columna, padx=20, pady=10)
         radBotones.append(radioButton)
 
-    # TODO: Crear tabla de configuraciones y opciones
-
     botonJugar = Button(root, text="Continuar", command=lambda: cargarPantallaJuego(root))
-    botonJugar.grid(row=1, column=0, sticky=W)
+    botonJugar.grid(row=1, column=0, sticky=SW)
     botonJugar.config(font=("helvetica", 12, "underline"))
 
     root.mainloop()
-def configuracionTablero(pos = "", valor = False):
+
+
+def posicionarBarco(evento):
+    boton = evento.widget
+    infoPosicion = boton.grid_info()
+
+    print(infoPosicion["row"], infoPosicion["column"])
+
+
+def configuracionTablero(pos="", valor=False):
     global dicInstrucciones
+
     print(dicInstrucciones)
+
     if pos != "" and valor != False:
         dicInstrucciones[pos] = valor
         if pos == "Horizontal":
@@ -187,13 +177,8 @@ def configuracionTablero(pos = "", valor = False):
             dicInstrucciones["Negativo"] = False
         else:
             dicInstrucciones["Positivo"] = False
+
     print(dicInstrucciones)
-
-def eventoClick(event):
-    boton = event.widget
-    infoPosicion = boton.grid_info()
-
-    print(infoPosicion["row"], infoPosicion["column"])
 
 
 def cargarPantallaJuego(ventanaActual):
@@ -229,6 +214,9 @@ def cargarPantallaFinJuego(ventanaActual):
 
     root.mainloop()
 
-dicInstrucciones = {"Horizontal": False, "Vertical": False, "Positivo": False, "Negativo": False}
+
+# Variables globales
 matrizTableroUsuario = []
+dicInstrucciones = {"Horizontal": False, "Vertical": False, "Positivo": False, "Negativo": False}
+# Inicio del juego
 cargarPantallaInicio()
