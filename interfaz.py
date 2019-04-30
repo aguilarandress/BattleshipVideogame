@@ -1,7 +1,7 @@
 import tkinter
 from tkinter import *
 from PIL import Image, ImageTk
-
+from tkinter import ttk
 
 def cargarPantallaInicio():
     """Carga la pantalla de inicio del juego
@@ -88,6 +88,8 @@ def cargarPantallaConfiguracion(ventanaActual):
     etiquetaSimbologia = Label(contenedorSimbologia, text="Simbología", anchor=W)
     etiquetaSimbologia.grid(row=0, column=0, pady=10)
 
+
+
     infoSimbologia = [
         ("", "Espacio sin tocar", ""),
         ("1", "Portaviones", "blue"),
@@ -116,6 +118,58 @@ def cargarPantallaConfiguracion(ventanaActual):
 
     etiquetaOpciones = Label(contenedorOpciones, text="Configurar tablero")
     etiquetaOpciones.grid(row=0, column=0)
+
+    anadir = Label(contenedorOpciones, text = 'Añadir')
+    anadir.grid( row = 1, column = 0)
+
+    menuDesple = ttk.Combobox(contenedorOpciones, state = 'readonly')
+    menuDesple['values'] = ['Portaviones','Acorazado', 'Buque de Guerra', 'Submarino', 'Destructor']
+    menuDesple.grid(row = 1, column = 1, padx= 20)
+
+    '''
+    botonesCofig = [
+    [['Horizontal'],['Positivo']],
+    [['Vertical'],['Negativo']]
+
+    ]
+    radBotonesValor = [[0,1],[0,1]]
+
+
+    for i in range(2):
+        for j in range(2):
+            variableRad = BooleanVar()
+            variableRad.set(0)
+            radButton = Radiobutton(contenedorOpciones, text = botonesCofig[i][j], variable=variableRad, value=1)
+            radButton.grid(row = i+2, column = j, padx= 20, pady= 20 )
+            opcion = variableRad.get()
+            radBotonesValor[i][-1] = opcion
+            botonesCofig[i][j] = radButton
+            
+    '''
+    horiVariable =  posVariable = negVariable = vertiVariable = BooleanVar()
+
+    horiVariable.set(0)
+    vertiVariable.set(0)
+    posVariable.set(0)
+    negVariable.set(0)
+
+    # Texto, Variable, Valor, Fila, Columna
+    radCondfig = (
+        ('Horizontal', horiVariable, 1, 2, 0),
+        ('Vertical', vertiVariable, 1, 2, 1),
+        ('Positivo', posVariable, 1, 3, 0),
+        ('Negativo', negVariable, 1, 3, 1)
+
+    )
+
+    radBotones = []
+    for text, variable, valor, fila, columna in radCondfig:
+        radioButton = Radiobutton(contenedorOpciones, text=text, variable=variable, value=valor)
+
+        radioButton.grid(row=fila, column=columna, padx = 20, pady = 10)
+        radBotones.append(radioButton)
+    
+
 
     # TODO: Crear tabla de configuraciones y opciones
 
