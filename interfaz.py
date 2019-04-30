@@ -119,12 +119,12 @@ def cargarPantallaConfiguracion(ventanaActual):
     etiquetaOpciones = Label(contenedorOpciones, text="Configurar tablero")
     etiquetaOpciones.grid(row=0, column=0)
 
-    anadir = Label(contenedorOpciones, text = 'Añadir')
-    anadir.grid( row = 1, column = 0)
+    anadir = Label(contenedorOpciones, text='Añadir')
+    anadir.grid( row=1, column=0)
 
-    menuDesple = ttk.Combobox(contenedorOpciones, state = 'readonly')
+    menuDesple = ttk.Combobox(contenedorOpciones, state='readonly')
     menuDesple['values'] = ['Portaviones','Acorazado', 'Buque de Guerra', 'Submarino', 'Destructor']
-    menuDesple.grid(row = 1, column = 1, padx= 20)
+    menuDesple.grid(row=1, column=1, padx=20)
 
     '''
     botonesCofig = [
@@ -156,25 +156,20 @@ def cargarPantallaConfiguracion(ventanaActual):
     negVariable.set(0)
 
     # Texto, Variable, Valor, Fila, Columna
-    radCondfig = (
-        ('Horizontal', horiVariable, 1, 2, 0),
-        ('Vertical', vertiVariable, 1, 2, 1),
-        ('Positivo', posVariable, 1, 3, 0),
-        ('Negativo', negVariable, 1, 3, 1)
-
+    radConfig = (
+        ("Horizontal", horiVariable, 1, 2, 0),
+        ("Vertical", vertiVariable, 1, 2, 1),
+        ("Positivo", posVariable, 1, 3, 0),
+        ("Negativo", negVariable, 1, 3, 1)
     )
 
     radBotones = []
-    for text, variable, valor, fila, columna in radCondfig:
+    for text, variable, valor, fila, columna in radConfig:
         radioButton = Radiobutton(contenedorOpciones, text=text, variable=variable, value=valor)
-
-        radioButton.grid(row=fila, column=columna, padx = 20, pady = 10)
+        radioButton.grid(row=fila, column=columna, padx=20, pady=10)
         radBotones.append(radioButton)
 
-
-
     # TODO: Crear tabla de configuraciones y opciones
-
     botonJugar = Button(root, text="Continuar", command=lambda: cargarPantallaJuego(root))
     botonJugar.grid(row=1, column=0, sticky=W)
     botonJugar.config(font=("helvetica", 12, "underline"))
