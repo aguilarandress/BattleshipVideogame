@@ -61,7 +61,7 @@ def cargarPantallaConfiguracion(ventanaActual):
     """
     global matrizTableroUsuario
     global informacionBarcos
-
+    global dicInstrucciones
     ventanaActual.destroy()
 
     root = tkinter.Tk()
@@ -89,7 +89,7 @@ def cargarPantallaConfiguracion(ventanaActual):
 
     # Insertar tabla de simbologia con botones con colores y sus etiquetas
     for i in range(len(informacionBarcos)):
-        boton = Button(contenedorSimbologia, text=informacionBarcos[i][0], padx=5, pady=5)
+        boton = Button(contenedorSimbologia, text=informacionBarcos[i][0], padx=5, pady=5 )
         if informacionBarcos[i][1] == "Espacio sin tocar":
             boton.config(padx=13, pady=13)
         else:
@@ -111,9 +111,12 @@ def cargarPantallaConfiguracion(ventanaActual):
     etiquetaAgregar.grid(row=1, column=0)
 
     # Crear menu despegable
-    menuDesplegable = ttk.Combobox(contenedorOpciones, state="readonly")
+    variableMenuDesple = StringVar()
+    menuDesplegable = ttk.Combobox(contenedorOpciones, state="readonly", textvariable=variableMenuDesple )
     menuDesplegable["values"] = ["Portaviones", "Acorazado", "Buque de Guerra", "Submarino", "Destructor"]
     menuDesplegable.grid(row=1, column=1, padx=20)
+    menuDesplegable.current(0)
+    menuDesplegable.bind("<<ComboboxSelected>>",lambda cambioBarco: dicInstrucciones.update({"Barco": variableMenuDesple.get()}) )
 
     horiVertiVariable = BooleanVar()
     negPosVariable = BooleanVar()
@@ -145,16 +148,15 @@ def cargarPantallaConfiguracion(ventanaActual):
 
 
 def posicionarBarco(evento):
+    global dicInstrucciones
     boton = evento.widget
     infoPosicion = boton.grid_info()
 
     print(infoPosicion["row"], infoPosicion["column"])
-
+    print(dicInstrucciones)
 
 def configuracionTablero(pos="", valor=False):
     global dicInstrucciones
-
-    print(dicInstrucciones)
 
     if pos != "" and valor != False:
         dicInstrucciones[pos] = valor
@@ -166,8 +168,6 @@ def configuracionTablero(pos="", valor=False):
             dicInstrucciones["Negativo"] = False
         else:
             dicInstrucciones["Positivo"] = False
-
-    print(dicInstrucciones)
 
 
 def cargarPantallaJuego(ventanaActual):
@@ -214,7 +214,6 @@ informacionBarcos = [
     ("4", "Submarino", "cyan"),
     ("5", "Destructor", "grey")
 ]
-dicInstrucciones = {"Horizontal": False, "Vertical": False, "Positivo": False, "Negativo": False}
-
+dicInstrucciones = {"Horizontal": False, "Vertical": False, "Positivo": False, "Negativo": False, "Barco": "Portaviones"}
 # Inicio del juego
 cargarPantallaInicio()
