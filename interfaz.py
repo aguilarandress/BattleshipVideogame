@@ -2,7 +2,7 @@ import tkinter
 from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageTk
-
+from funcionValidacion import configurarTablero
 
 def cargarPantallaInicio():
     """Carga la pantalla de inicio del juego
@@ -135,7 +135,7 @@ def cargarPantallaConfiguracion(ventanaActual):
     radBotones = []
     for text, variable, valor, fila, columna in radCondfiguracion:
         radioButton = Radiobutton(contenedorOpciones, text=text, variable=variable, value=valor, \
-        command=lambda text=text, variable=variable: configuracionTablero(text, variable.get()))
+        command=lambda text=text, variable=variable: validacionOpciones(text, variable.get()))
 
         radioButton.grid(row=fila, column=columna, padx=20, pady=10)
         radBotones.append(radioButton)
@@ -152,10 +152,10 @@ def posicionarBarco(evento):
     boton = evento.widget
     infoPosicion = boton.grid_info()
 
-    print(infoPosicion["row"], infoPosicion["column"])
-    print(dicInstrucciones)
+    configurarTablero(dicInstrucciones, [infoPosicion["row"], infoPosicion["column"]])
 
-def configuracionTablero(pos="", valor=False):
+
+def validacionOpciones(pos="", valor=False):
     global dicInstrucciones
 
     if pos != "" and valor != False:

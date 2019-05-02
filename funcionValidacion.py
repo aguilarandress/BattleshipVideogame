@@ -1,5 +1,4 @@
 #funciones de validaciones
-from interfaz import informacionBarcos
 
 def configurarTablero(diccionario, posicion):
     listaOpciones = []
@@ -40,4 +39,4 @@ def configurarTablero(diccionario, posicion):
 
     if infoBarcos["Posicion"]:
         #TODO insertar cambio en la matriz dependiendo el tipo de barco...usar informacionBarcos
-        print("Nada")
+        print("Validacion Correcta")
