@@ -2,7 +2,7 @@ import tkinter
 from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageTk
-from funcionValidacion import configurarTablero
+from tkinter import messagebox
 
 
 def cargarPantallaInicio():
@@ -148,13 +148,110 @@ def cargarPantallaConfiguracion(ventanaActual):
     root.mainloop()
 
 
+def validacioPosEnMatriz(posicion, barcoActual):
+    global dicPosicionesBarcos
+    global dicInstrucciones
+    diccionario = dicInstrucciones
+    dicPosicionAnterior = dicPosicionesBarcos
+    infoBarcos = {"Posicion" : False}
+    #Configuracion para validacion de barcos seun su tipo se condiciona su posicion minima o maxima
+    posConfigValidacion = (
+        ("Portaviones", 3, 6),
+        ("Acorazado", 2, 7),
+        ("Buque de Guerra", 1, 8),
+        ("Submarino", 1, 8),
+        ("Destructor", 0, 9)
+    )
+
+    for barco, posMin, posMax in posConfigValidacion:
+        if len(dicPosicionAnterior[barcoActual])!= 0 :
+            for i in dicPosicionAnterior[barcoActual]:
+                matrizTableroUsuario[i[0]][i[1]].config(bg="grey92", text="   ")
+
+        if diccionario["Barco"] == barco :
+            if diccionario["Positivo"]:
+                if  diccionario["Vertical"] and posMin < posicion[0] :
+                    infoBarcos["Posicion"] = True
+                    infoBarcos[barco] = barco
+
+                if  diccionario["Horizontal"] and posMax > posicion[1] :
+                    infoBarcos["Posicion"] = True
+                    infoBarcos[barco] = barco
+
+            if diccionario["Negativo"]:
+                if  diccionario["Vertical"] and posMax > posicion[0] :
+                    infoBarcos["Posicion"] = True
+                    infoBarcos[barco] = barco
+
+                if  diccionario["Horizontal"] and posMin < posicion[1] :
+                    infoBarcos["Posicion"] = True
+                    infoBarcos[barco] = barco
+            if infoBarcos["Posicion"]:
+                print("Posicion en Matriz: ", infoBarcos["Posicion"])
+                return validacionBarcos(posicion)
+
+            else:
+                messagebox.showerror("ERROR", "El barco deleccionado no puede ser posicionado segun la configuracion"
+                                    + "solicitada, seleccione una configuracion diferente")
+                return infoBarcos["Posicion"]
+
+
+
+def validacionBarcos(posicion):
+
+
+    def validacionBarcos_PosicionFutura(posicionActual):
+        global informacionBarcos
+        global matrizTableroUsuario
+        barcoActual = dicInstrucciones["Barco"]
+        posicionFutura = []
+        # Obtener información del barco
+        largo = 0
+        for barco in informacionBarcos:
+            if barco[1] == barcoActual:
+                largo = barco[3]
+
+
+        if dicInstrucciones["Horizontal"]:
+            if dicInstrucciones["Positivo"]:
+                for i in range(largo):
+                    posicionFutura += [[posicionActual[0]] + [posicionActual[1] + i]]
+                return posicionFutura
+            else:
+                for i in range(largo):
+                    posicionFutura += [[posicionActual[0]] + [posicionActual[1] - i]]
+                return posicionFutura
+        else:
+            if dicInstrucciones["Positivo"]:
+                for i in range(largo):
+                    posicionFutura += [[posicionActual[0] - i ] + [posicionActual[1]]]
+                return posicionFutura
+            else:
+                for i in range(largo):
+                    posicionFutura += [[posicionActual[0] + i] + [posicionActual[1]]]
+                return posicionFutura
+
+
+    posicionFutura = validacionBarcos_PosicionFutura(posicion)
+    print(posicionFutura)
+    for llave in dicPosicionesBarcos:
+        for contador in range(len(posicionFutura)):
+            if posicionFutura[contador] in dicPosicionesBarcos[llave] and llave != dicInstrucciones["Barco"]:
+                messagebox.showerror("ERROR",
+                                     "El barco deleccionado no puede ser posicionado segun la posicion solicitada" \
+                                     + ", seleccione una posicion diferente")
+                return False
+
+    return True
+
 def posicionarBarco(evento):
     global dicInstrucciones
     global informacionBarcos
     global matrizTableroUsuario
+    global dicPosicionesBarcos
 
     barcoActual = dicInstrucciones["Barco"]
-
+    posicionBarco =[]
     # Obtener información del barco
     espacios = 0
     color = ""
@@ -164,7 +261,6 @@ def posicionarBarco(evento):
             espacios = barco[3]
             color = barco[2]
             numeroBarco = barco[0]
-
     boton = evento.widget
     infoPosicion = boton.grid_info()
 
@@ -172,21 +268,30 @@ def posicionarBarco(evento):
 
     #TODO: Validar posicionamiento de los barcos
 
-    if dicInstrucciones["Horizontal"]:
-        if dicInstrucciones["Positivo"]:
-            for i in range(espacios):
-                matrizTableroUsuario[posicionActual[0]][posicionActual[1] + i].config(bg=color, text=numeroBarco)
+    if  validacioPosEnMatriz(posicionActual, str(barcoActual)):
+        if dicInstrucciones["Horizontal"]:
+            if dicInstrucciones["Positivo"]:
+                for i in range(espacios):
+                    matrizTableroUsuario[posicionActual[0]][posicionActual[1] + i].config(bg=color, text=numeroBarco)
+                    posicionBarco += [[posicionActual[0]] + [posicionActual[1] + i]]
+                dicPosicionesBarcos[str(barcoActual)] = posicionBarco
+            else:
+                for i in range(espacios):
+                    matrizTableroUsuario[posicionActual[0]][posicionActual[1] - i].config(bg=color, text=numeroBarco)
+                    posicionBarco += [[posicionActual[0]] + [posicionActual[1] - i]]
+                dicPosicionesBarcos[str(barcoActual)] = posicionBarco
         else:
-            for i in range(espacios):
-                matrizTableroUsuario[posicionActual[0]][posicionActual[1] - i].config(bg=color, text=numeroBarco)
-    else:
-        if dicInstrucciones["Positivo"]:
-            for i in range(espacios):
-                matrizTableroUsuario[posicionActual[0] - i][posicionActual[1]].config(bg=color, text=numeroBarco)
-        else:
-            for i in range(espacios):
-                matrizTableroUsuario[posicionActual[0] + i][posicionActual[1]].config(bg=color, text=numeroBarco)
-
+            if dicInstrucciones["Positivo"]:
+                for i in range(espacios):
+                    matrizTableroUsuario[posicionActual[0] - i][posicionActual[1]].config(bg=color, text=numeroBarco)
+                    posicionBarco += [[posicionActual[0] - i] + [posicionActual[1]]]
+                dicPosicionesBarcos[str(barcoActual)] = posicionBarco
+            else:
+                for i in range(espacios):
+                    matrizTableroUsuario[posicionActual[0] + i][posicionActual[1]].config(bg=color, text=numeroBarco)
+                    posicionBarco += [[posicionActual[0] + i] + [posicionActual[1]]]
+                dicPosicionesBarcos[str(barcoActual)] = posicionBarco
+    print(dicPosicionesBarcos)
 
 def configurarDirecciones(direccion):
     global dicInstrucciones
@@ -249,6 +354,6 @@ informacionBarcos = [
     ("5", "Destructor", "grey", 2)
 ]
 dicInstrucciones = {"Horizontal": True, "Vertical": False, "Positivo": True, "Negativo": False, "Barco": "Portaviones"}
-
+dicPosicionesBarcos = {"Portaviones": [], "Acorazado": [],"Buque de Guerra": [], "Submarino": [], "Destructor": []}
 # Inicio del juego
 cargarPantallaInicio()
