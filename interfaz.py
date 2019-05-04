@@ -4,6 +4,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 from funcionValidacion import configurarTablero
 
+
 def cargarPantallaInicio():
     """Carga la pantalla de inicio del juego
 
@@ -62,6 +63,7 @@ def cargarPantallaConfiguracion(ventanaActual):
     global matrizTableroUsuario
     global informacionBarcos
     global dicInstrucciones
+
     ventanaActual.destroy()
 
     root = tkinter.Tk()
@@ -115,30 +117,29 @@ def cargarPantallaConfiguracion(ventanaActual):
     menuDesplegable = ttk.Combobox(contenedorOpciones, state="readonly", textvariable=variableMenuDesple )
     menuDesplegable["values"] = ["Portaviones", "Acorazado", "Buque de Guerra", "Submarino", "Destructor"]
     menuDesplegable.grid(row=1, column=1, padx=20)
+
     menuDesplegable.current(0)
-    menuDesplegable.bind("<<ComboboxSelected>>",lambda cambioBarco: dicInstrucciones.update({"Barco": variableMenuDesple.get()}) )
+    menuDesplegable.bind("<<ComboboxSelected>>", lambda cambioBarco: dicInstrucciones.update({"Barco": variableMenuDesple.get()}))
 
     horiVertiVariable = BooleanVar()
     negPosVariable = BooleanVar()
-    horiVertiVariable.set(0)
-    negPosVariable.set(0)
+    horiVertiVariable.set(1)
+    negPosVariable.set(1)
 
     # Texto, Variable, Valor, Fila, Columna
     radCondfiguracion = (
         ("Horizontal", horiVertiVariable, 1, 2, 0),
-        ("Vertical", horiVertiVariable, 2, 2, 1),
-        ("Positivo", negPosVariable, 3, 3, 0),
-        ("Negativo", negPosVariable, 4, 3, 1)
+        ("Vertical", horiVertiVariable, 0, 2, 1),
+        ("Positivo", negPosVariable, 1, 3, 0),
+        ("Negativo", negPosVariable, 0, 3, 1)
     )
 
     # Creación de botones de radio para configuración
-    radBotones = []
     for text, variable, valor, fila, columna in radCondfiguracion:
         radioButton = Radiobutton(contenedorOpciones, text=text, variable=variable, value=valor, \
-        command=lambda text=text, variable=variable: validacionOpciones(text, variable.get()))
+        command=lambda direccion=text: configurarDirecciones(direccion))
 
         radioButton.grid(row=fila, column=columna, padx=20, pady=10)
-        radBotones.append(radioButton)
 
     botonJugar = Button(root, text="Continuar", command=lambda: cargarPantallaJuego(root))
     botonJugar.grid(row=1, column=0, sticky=SW)
@@ -149,25 +150,58 @@ def cargarPantallaConfiguracion(ventanaActual):
 
 def posicionarBarco(evento):
     global dicInstrucciones
+    global informacionBarcos
+    global matrizTableroUsuario
+
+    barcoActual = dicInstrucciones["Barco"]
+
+    # Obtener información del barco
+    espacios = 0
+    color = ""
+    numeroBarco = ""
+    for barco in informacionBarcos:
+        if barco[1] == barcoActual:
+            espacios = barco[3]
+            color = barco[2]
+            numeroBarco = barco[0]
+
     boton = evento.widget
     infoPosicion = boton.grid_info()
 
-    configurarTablero(dicInstrucciones, [infoPosicion["row"], infoPosicion["column"]])
+    posicionActual = (infoPosicion["row"], infoPosicion["column"])
+
+    #TODO: Validar posicionamiento de los barcos
+
+    if dicInstrucciones["Horizontal"]:
+        if dicInstrucciones["Positivo"]:
+            for i in range(espacios):
+                matrizTableroUsuario[posicionActual[0]][posicionActual[1] + i].config(bg=color, text=numeroBarco)
+        else:
+            for i in range(espacios):
+                matrizTableroUsuario[posicionActual[0]][posicionActual[1] - i].config(bg=color, text=numeroBarco)
+    else:
+        if dicInstrucciones["Positivo"]:
+            for i in range(espacios):
+                matrizTableroUsuario[posicionActual[0] - i][posicionActual[1]].config(bg=color, text=numeroBarco)
+        else:
+            for i in range(espacios):
+                matrizTableroUsuario[posicionActual[0] + i][posicionActual[1]].config(bg=color, text=numeroBarco)
 
 
-def validacionOpciones(pos="", valor=False):
+def configurarDirecciones(direccion):
     global dicInstrucciones
 
-    if pos != "" and valor != False:
-        dicInstrucciones[pos] = valor
-        if pos == "Horizontal":
+    dicInstrucciones[direccion] = True
+    if direccion != "":
+        if direccion == "Horizontal":
             dicInstrucciones["Vertical"] = False
-        elif pos == "Vertical":
+        elif direccion == "Vertical":
             dicInstrucciones["Horizontal"] = False
-        elif pos == "Positivo":
+        elif direccion == "Positivo":
             dicInstrucciones["Negativo"] = False
         else:
             dicInstrucciones["Positivo"] = False
+    print(dicInstrucciones)
 
 
 def cargarPantallaJuego(ventanaActual):
@@ -208,12 +242,13 @@ def cargarPantallaFinJuego(ventanaActual):
 matrizTableroUsuario = [[str(i) + str(j) for j in range(10)] for i in range(10)]
 informacionBarcos = [
     ("", "Espacio sin tocar", ""),
-    ("1", "Portaviones", "blue"),
-    ("2", "Acorazado", "yellow"),
-    ("3", "Buque de Guerra", "magenta"),
-    ("4", "Submarino", "cyan"),
-    ("5", "Destructor", "grey")
+    ("1", "Portaviones", "blue", 5),
+    ("2", "Acorazado", "yellow", 4),
+    ("3", "Buque de Guerra", "magenta", 3),
+    ("4", "Submarino", "cyan", 3),
+    ("5", "Destructor", "grey", 2)
 ]
-dicInstrucciones = {"Horizontal": False, "Vertical": False, "Positivo": False, "Negativo": False, "Barco": "Portaviones"}
+dicInstrucciones = {"Horizontal": True, "Vertical": False, "Positivo": True, "Negativo": False, "Barco": "Portaviones"}
+
 # Inicio del juego
 cargarPantallaInicio()
