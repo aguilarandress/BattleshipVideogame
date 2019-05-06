@@ -309,23 +309,22 @@ def validacionBarcos(posicion):
 def cargarPantallaJuego(ventanaActual):
     global matrizTableroBot
     global matrizTableroUsuario
+    global informacionBarcos
 
     ventanaActual.destroy()
 
     root = tkinter.Tk()
     root.title("BattleShip - Pantalla de Juego")
 
-    #TODO: Insertar el resto de la pantalla de juego
-
     etiquetaTurno = Label(root, text="Su Turno", font=("helvetica", 18, "underline italic"))
     etiquetaTurno.grid(row=0, column=0, sticky=NW)
 
     contenedorEnemigo = Frame(root)
-    contenedorEnemigo.grid(row=1, column=0, pady=50)
-    eitquetaTableroEnemigo = Label(contenedorEnemigo, text="Tablero Enemigo")
-    eitquetaTableroEnemigo.grid(row=0, column=0, sticky=N)
+    contenedorEnemigo.grid(row=1, column=0, pady=(50, 0))
+    etiquetaTableroEnemigo = Label(contenedorEnemigo, text="Tablero Enemigo")
+    etiquetaTableroEnemigo.grid(row=0, column=0, sticky=NW)
     contenedorTableroEnemigo = Frame(contenedorEnemigo)
-    contenedorTableroEnemigo.grid(row=0, column=1)
+    contenedorTableroEnemigo.grid(row=1, column=1)
 
     # Crear tablero enemigo
     for fila in range(len(matrizTableroBot)):
@@ -335,14 +334,32 @@ def cargarPantallaJuego(ventanaActual):
             matrizTableroBot[fila][columna] = boton
             boton.grid(row=fila, column=columna, padx=5, pady=5)
 
-    contenedorUsuario = Frame(root)
-    contenedorUsuario.grid(row=1, column=1, pady=50, padx=20)
-    etiquetaTableroUsuario = Label(contenedorUsuario, text="Mi Tablero")
-    etiquetaTableroUsuario.grid(row=0, column=0, sticky=N)
-    contenedorTableroUsuario = Frame(contenedorUsuario)
-    contenedorTableroUsuario.grid(row=0, column=1)
+    contenedorEstatusEnemigo = Frame(contenedorEnemigo)
+    contenedorEstatusEnemigo.grid(row=2, column=0)
+    etiquetaEstatusEnemigo = Label(contenedorEstatusEnemigo, text="Estatus Enemigo", justify=LEFT)
+    etiquetaEstatusEnemigo.grid(row=0, column=0, sticky=W)
 
-    print(matrizTableroUsuario)
+    estatusEnemigo = {
+        "Portaviones": ("Posición Desconocida", "En pie"),
+        "Acorazado": ("Posición Desconocida", "En pie"),
+        "Buque de Guerra": ("Posición Desconocida", "En pie"),
+        "Submarino": ("Posición Desconocida", "En pie"),
+        "Destructor": ("Posición Desconocida", "En pie")
+    }
+
+    contador = 1
+    for barco in estatusEnemigo:
+        texto = barco + ": " + estatusEnemigo[barco][0] + ", " + estatusEnemigo[barco][1]
+        etiquetaEstatus = Label(contenedorEstatusEnemigo, text=texto, justify=LEFT)
+        etiquetaEstatus.grid(row=contador, column=0, sticky=W)
+        contador += 1
+
+    contenedorUsuario = Frame(root)
+    contenedorUsuario.grid(row=1, column=1, pady=(50, 0), padx=20)
+    etiquetaTableroUsuario = Label(contenedorUsuario, text="Mi Tablero")
+    etiquetaTableroUsuario.grid(row=0, column=0, sticky=NW)
+    contenedorTableroUsuario = Frame(contenedorUsuario)
+    contenedorTableroUsuario.grid(row=1, column=1)
 
     # Insertar matriz de botones en el tablero
     for fila in range(len(matrizTableroUsuario)):
@@ -357,7 +374,27 @@ def cargarPantallaJuego(ventanaActual):
                 for posicion in dicPosicionesBarcos[barco]:
                     matrizTableroUsuario[posicion[0]][posicion[1]].config(text=tipoDeBarco[0], bg=tipoDeBarco[2])
 
-    
+    contenedorEstatusUsuario = Frame(contenedorUsuario)
+    contenedorEstatusUsuario.grid(row=2, column=0)
+    etiquetaEstatusUsuario = Label(contenedorEstatusUsuario, text="Mi Estatus", justify=LEFT)
+    etiquetaEstatusUsuario.grid(row=0, column=0, sticky=W)
+
+    estatusUsuario = {
+        "Portaviones": "Sin daño",
+        "Acorazado": "Sin daño",
+        "Buque de Guerra": "Sin daño",
+        "Submarino": "Sin daño",
+        "Destructor": "Sin daño"
+    }
+
+    contador = 1
+    for barco in estatusUsuario:
+        texto = barco + ": " + estatusUsuario[barco]
+        etiquetaEstatus = Label(contenedorEstatusUsuario, text=texto, justify=LEFT)
+        etiquetaEstatus.grid(row=contador, column=0, sticky=W)
+        contador += 1
+
+    # TODO: Insertar el resto de la pantalla de juego
 
     # boton = Button(root, text="Continuar", command=lambda: cargarPantallaFinJuego(root))
     # boton.grid(row=0, column=0)
