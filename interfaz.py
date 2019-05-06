@@ -1,8 +1,8 @@
 import tkinter
 from tkinter import *
 from tkinter import ttk
-from PIL import Image, ImageTk
 from tkinter import messagebox
+from PIL import Image, ImageTk
 
 
 def cargarPantallaInicio():
@@ -148,13 +148,77 @@ def cargarPantallaConfiguracion(ventanaActual):
     root.mainloop()
 
 
+def posicionarBarco(evento):
+    global dicInstrucciones
+    global informacionBarcos
+    global matrizTableroUsuario
+    global dicPosicionesBarcos
+
+    barcoActual = dicInstrucciones["Barco"]
+    posicionBarco =[]
+    # Obtener información del barco
+    espacios = 0
+    color = ""
+    numeroBarco = ""
+    for barco in informacionBarcos:
+        if barco[1] == barcoActual:
+            espacios = barco[3]
+            color = barco[2]
+            numeroBarco = barco[0]
+    boton = evento.widget
+    infoPosicion = boton.grid_info()
+
+    posicionActual = (infoPosicion["row"], infoPosicion["column"])
+
+    if  validacioPosEnMatriz(posicionActual, str(barcoActual)):
+        if dicInstrucciones["Horizontal"]:
+            if dicInstrucciones["Positivo"]:
+                for i in range(espacios):
+                    matrizTableroUsuario[posicionActual[0]][posicionActual[1] + i].config(bg=color, text=numeroBarco)
+                    posicionBarco += [[posicionActual[0]] + [posicionActual[1] + i]]
+                dicPosicionesBarcos[str(barcoActual)] = posicionBarco
+            else:
+                for i in range(espacios):
+                    matrizTableroUsuario[posicionActual[0]][posicionActual[1] - i].config(bg=color, text=numeroBarco)
+                    posicionBarco += [[posicionActual[0]] + [posicionActual[1] - i]]
+                dicPosicionesBarcos[str(barcoActual)] = posicionBarco
+        else:
+            if dicInstrucciones["Positivo"]:
+                for i in range(espacios):
+                    matrizTableroUsuario[posicionActual[0] - i][posicionActual[1]].config(bg=color, text=numeroBarco)
+                    posicionBarco += [[posicionActual[0] - i] + [posicionActual[1]]]
+                dicPosicionesBarcos[str(barcoActual)] = posicionBarco
+            else:
+                for i in range(espacios):
+                    matrizTableroUsuario[posicionActual[0] + i][posicionActual[1]].config(bg=color, text=numeroBarco)
+                    posicionBarco += [[posicionActual[0] + i] + [posicionActual[1]]]
+                dicPosicionesBarcos[str(barcoActual)] = posicionBarco
+    print(dicPosicionesBarcos)
+
+
+def configurarDirecciones(direccion):
+    global dicInstrucciones
+
+    dicInstrucciones[direccion] = True
+    if direccion != "":
+        if direccion == "Horizontal":
+            dicInstrucciones["Vertical"] = False
+        elif direccion == "Vertical":
+            dicInstrucciones["Horizontal"] = False
+        elif direccion == "Positivo":
+            dicInstrucciones["Negativo"] = False
+        else:
+            dicInstrucciones["Positivo"] = False
+
+
 def validacioPosEnMatriz(posicion, barcoActual):
     global dicPosicionesBarcos
     global dicInstrucciones
+
     diccionario = dicInstrucciones
     dicPosicionAnterior = dicPosicionesBarcos
     infoBarcos = {"Posicion" : False}
-    #Configuracion para validacion de barcos seun su tipo se condiciona su posicion minima o maxima
+    # Configuracion para validacion de barcos seun su tipo se condiciona su posicion minima o maxima
     posConfigValidacion = (
         ("Portaviones", 3, 6),
         ("Acorazado", 2, 7),
@@ -189,28 +253,25 @@ def validacioPosEnMatriz(posicion, barcoActual):
             if infoBarcos["Posicion"]:
                 print("Posicion en Matriz: ", infoBarcos["Posicion"])
                 return validacionBarcos(posicion)
-
             else:
                 messagebox.showerror("ERROR", "El barco deleccionado no puede ser posicionado segun la configuracion"
                                     + "solicitada, seleccione una configuracion diferente")
                 return infoBarcos["Posicion"]
 
 
-
 def validacionBarcos(posicion):
-
-
     def validacionBarcos_PosicionFutura(posicionActual):
         global informacionBarcos
         global matrizTableroUsuario
+
         barcoActual = dicInstrucciones["Barco"]
         posicionFutura = []
+
         # Obtener información del barco
         largo = 0
         for barco in informacionBarcos:
             if barco[1] == barcoActual:
                 largo = barco[3]
-
 
         if dicInstrucciones["Horizontal"]:
             if dicInstrucciones["Positivo"]:
@@ -244,72 +305,11 @@ def validacionBarcos(posicion):
 
     return True
 
-def posicionarBarco(evento):
-    global dicInstrucciones
-    global informacionBarcos
-    global matrizTableroUsuario
-    global dicPosicionesBarcos
-
-    barcoActual = dicInstrucciones["Barco"]
-    posicionBarco =[]
-    # Obtener información del barco
-    espacios = 0
-    color = ""
-    numeroBarco = ""
-    for barco in informacionBarcos:
-        if barco[1] == barcoActual:
-            espacios = barco[3]
-            color = barco[2]
-            numeroBarco = barco[0]
-    boton = evento.widget
-    infoPosicion = boton.grid_info()
-
-    posicionActual = (infoPosicion["row"], infoPosicion["column"])
-
-    #TODO: Validar posicionamiento de los barcos
-
-    if  validacioPosEnMatriz(posicionActual, str(barcoActual)):
-        if dicInstrucciones["Horizontal"]:
-            if dicInstrucciones["Positivo"]:
-                for i in range(espacios):
-                    matrizTableroUsuario[posicionActual[0]][posicionActual[1] + i].config(bg=color, text=numeroBarco)
-                    posicionBarco += [[posicionActual[0]] + [posicionActual[1] + i]]
-                dicPosicionesBarcos[str(barcoActual)] = posicionBarco
-            else:
-                for i in range(espacios):
-                    matrizTableroUsuario[posicionActual[0]][posicionActual[1] - i].config(bg=color, text=numeroBarco)
-                    posicionBarco += [[posicionActual[0]] + [posicionActual[1] - i]]
-                dicPosicionesBarcos[str(barcoActual)] = posicionBarco
-        else:
-            if dicInstrucciones["Positivo"]:
-                for i in range(espacios):
-                    matrizTableroUsuario[posicionActual[0] - i][posicionActual[1]].config(bg=color, text=numeroBarco)
-                    posicionBarco += [[posicionActual[0] - i] + [posicionActual[1]]]
-                dicPosicionesBarcos[str(barcoActual)] = posicionBarco
-            else:
-                for i in range(espacios):
-                    matrizTableroUsuario[posicionActual[0] + i][posicionActual[1]].config(bg=color, text=numeroBarco)
-                    posicionBarco += [[posicionActual[0] + i] + [posicionActual[1]]]
-                dicPosicionesBarcos[str(barcoActual)] = posicionBarco
-    print(dicPosicionesBarcos)
-
-def configurarDirecciones(direccion):
-    global dicInstrucciones
-
-    dicInstrucciones[direccion] = True
-    if direccion != "":
-        if direccion == "Horizontal":
-            dicInstrucciones["Vertical"] = False
-        elif direccion == "Vertical":
-            dicInstrucciones["Horizontal"] = False
-        elif direccion == "Positivo":
-            dicInstrucciones["Negativo"] = False
-        else:
-            dicInstrucciones["Positivo"] = False
-    print(dicInstrucciones)
-
 
 def cargarPantallaJuego(ventanaActual):
+    global matrizTableroBot
+    global matrizTableroUsuario
+
     ventanaActual.destroy()
 
     root = tkinter.Tk()
@@ -317,8 +317,50 @@ def cargarPantallaJuego(ventanaActual):
 
     #TODO: Insertar el resto de la pantalla de juego
 
-    boton = Button(root, text="Continuar", command=lambda: cargarPantallaFinJuego(root))
-    boton.grid(row=0, column=0)
+    etiquetaTurno = Label(root, text="Su Turno", font=("helvetica", 18, "underline italic"))
+    etiquetaTurno.grid(row=0, column=0, sticky=NW)
+
+    contenedorEnemigo = Frame(root)
+    contenedorEnemigo.grid(row=1, column=0, pady=50)
+    eitquetaTableroEnemigo = Label(contenedorEnemigo, text="Tablero Enemigo")
+    eitquetaTableroEnemigo.grid(row=0, column=0, sticky=N)
+    contenedorTableroEnemigo = Frame(contenedorEnemigo)
+    contenedorTableroEnemigo.grid(row=0, column=1)
+
+    # Crear tablero enemigo
+    for fila in range(len(matrizTableroBot)):
+        for columna in range(len(matrizTableroBot[fila])):
+            boton = Button(contenedorTableroEnemigo, text="   ", padx=6, pady=4)
+
+            matrizTableroBot[fila][columna] = boton
+            boton.grid(row=fila, column=columna, padx=5, pady=5)
+
+    contenedorUsuario = Frame(root)
+    contenedorUsuario.grid(row=1, column=1, pady=50, padx=20)
+    etiquetaTableroUsuario = Label(contenedorUsuario, text="Mi Tablero")
+    etiquetaTableroUsuario.grid(row=0, column=0, sticky=N)
+    contenedorTableroUsuario = Frame(contenedorUsuario)
+    contenedorTableroUsuario.grid(row=0, column=1)
+
+    print(matrizTableroUsuario)
+
+    # Insertar matriz de botones en el tablero
+    for fila in range(len(matrizTableroUsuario)):
+        for columna in range(len(matrizTableroUsuario[fila])):
+            boton = Button(contenedorTableroUsuario, text="   ", padx=6, pady=4)
+            boton.grid(row=fila, column=columna, padx=5, pady=5)
+            matrizTableroUsuario[fila][columna] = boton
+
+    for barco in dicPosicionesBarcos:
+        for tipoDeBarco in informacionBarcos:
+            if barco == tipoDeBarco[1]:
+                for posicion in dicPosicionesBarcos[barco]:
+                    matrizTableroUsuario[posicion[0]][posicion[1]].config(text=tipoDeBarco[0], bg=tipoDeBarco[2])
+
+    
+
+    # boton = Button(root, text="Continuar", command=lambda: cargarPantallaFinJuego(root))
+    # boton.grid(row=0, column=0)
 
     root.mainloop()
 
@@ -345,6 +387,7 @@ def cargarPantallaFinJuego(ventanaActual):
 
 # Variables globales
 matrizTableroUsuario = [[str(i) + str(j) for j in range(10)] for i in range(10)]
+matrizTableroBot = [[str(i) + str(j) for j in range(10)] for i in range(10)]
 informacionBarcos = [
     ("", "Espacio sin tocar", ""),
     ("1", "Portaviones", "blue", 5),
