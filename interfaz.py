@@ -3,7 +3,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-
+import tiposDeAtaques as tDA
 
 def cargarPantallaInicio():
     """Carga la pantalla de inicio del juego
@@ -141,11 +141,19 @@ def cargarPantallaConfiguracion(ventanaActual):
 
         radioButton.grid(row=fila, column=columna, padx=20, pady=10)
 
-    botonJugar = Button(root, text="Continuar", command=lambda: cargarPantallaJuego(root))
+    botonJugar = Button(root, text="Continuar", command=lambda: validacionCargarPantallaDeJuego(root))
     botonJugar.grid(row=1, column=0, sticky=SW)
     botonJugar.config(font=("helvetica", 12, "underline"))
 
     root.mainloop()
+
+
+def validacionCargarPantallaDeJuego(ventana):
+    global dicPosicionesBarcos
+    for i in dicPosicionesBarcos:
+        if dicPosicionesBarcos[i] == []:
+            return messagebox.showerror("ERROR", "Debe configurar su tablero completamente para avanzar")
+    cargarPantallaJuego(ventana)
 
 
 def posicionarBarco(evento):
@@ -310,6 +318,7 @@ def cargarPantallaJuego(ventanaActual):
     global matrizTableroBot
     global matrizTableroUsuario
     global informacionBarcos
+    global disparoSeleccionado
 
     ventanaActual.destroy()
 
@@ -329,10 +338,11 @@ def cargarPantallaJuego(ventanaActual):
     # Crear tablero enemigo
     for fila in range(len(matrizTableroBot)):
         for columna in range(len(matrizTableroBot[fila])):
-            boton = Button(contenedorTableroEnemigo, text="   ", padx=6, pady=4)
+            boton = Button(contenedorTableroEnemigo, text="   ", padx=6, pady=4 )
 
             matrizTableroBot[fila][columna] = boton
             boton.grid(row=fila, column=columna, padx=5, pady=5)
+            boton.bind("<Button-1>",ataqueAlEnemigo)
 
     contenedorEstatusEnemigo = Frame(contenedorEnemigo)
     contenedorEstatusEnemigo.grid(row=2, column=0)
@@ -394,13 +404,81 @@ def cargarPantallaJuego(ventanaActual):
         etiquetaEstatus.grid(row=contador, column=0, sticky=W)
         contador += 1
 
-    # TODO: Insertar el resto de la pantalla de juego
+    contenedorSimbologiaOpciones = Frame(root)
+    contenedorSimbologiaOpciones.grid(row=1, column=2, sticky=W)
+
+    contenedorSimbologia = Frame(contenedorSimbologiaOpciones)
+    contenedorSimbologia.grid(row=0, column=0, sticky=N)
+    etiquetaSimbologia= Label(contenedorSimbologia, text="Simbologia")
+    etiquetaSimbologia.grid(row=0, column=0, sticky=NW)
+    simbologia = [
+        (1,"Espacio Sin Tocar", "white","  "),
+        (2,"Disparo Acertado", "green","  "),
+        (3,"Disparo Fallido", "red","  "),
+        (4,"Portaviones Sin Daño", "blue","1"),
+        (5,"Portaviones Con Daño", "red","1"),
+        (6,"Acorazado Sin Daño", "yellow","2"),
+        (7,"Acorazado Con Daño", "yellow","2"),
+        (8,"Buque de Guerra Sin Daño", "pink","3"),
+        (9,"Buque de Guerra con Daño", "red","3"),
+        (10,"Submarino Sin Daño", "cyan","4"),
+        (11,"Submarino con Daño", "red","4"),
+        (12,"Destructor Sin Daño", "grey","5"),
+        (13,"Destructor con Daño", "red","5")
+    ]
+    for fila in simbologia:
+        boton = Button(contenedorSimbologia,text=fila[3], padx=4, pady=4 )
+        boton.config(bg=fila[2])
+        boton.grid(row=fila[0], column=0, padx=10, pady=5)
+
+        etiqueta = Label(contenedorSimbologia, text=fila[1] , justify= LEFT)
+        etiqueta.grid(row=fila[0], column=1, padx=10, sticky=W)
+
+    contenedorOpciones = Frame(contenedorSimbologiaOpciones)
+    contenedorOpciones.grid(row=1, column=0, sticky=NW)
+
+    variableDisparo = BooleanVar()
+    variableDisparo.set(0)
+    etiquetaAccionesDisponible = Label(contenedorOpciones, text="Acciones Disponibles")
+    etiquetaAccionesDisponible.grid(row=0,column=0, pady=15, sticky=W)
+    disparos= [
+        ("Unico",),
+        ("Misil",),
+        ("Bomba",)
+    ]
+    for i in range(3):
+        disparoBoton = Radiobutton(contenedorOpciones, text= "Disparo " + disparos[i][0], variable=variableDisparo, value=i,\
+                    command=lambda disp = disparos[i][0] : actualizarDisparo(disp))
+        disparoBoton.grid(row=i+1, column=0, pady=15, sticky=W)
+
 
     # boton = Button(root, text="Continuar", command=lambda: cargarPantallaFinJuego(root))
     # boton.grid(row=0, column=0)
 
     root.mainloop()
 
+
+def actualizarDisparo(tipoDisparo):
+    global disparoSeleccionado
+    disparoSeleccionado["Disparo"] = tipoDisparo
+
+
+def ataqueAlEnemigo(evento):
+    global disparoSeleccionado
+    global matrizTableroBot
+    boton = evento.widget
+    infoPosicion = boton.grid_info()
+
+    posicionActual = [infoPosicion["row"], infoPosicion["column"]]
+
+    if disparoSeleccionado["Disparo"] == "Bomba":
+        tDA.disparoBomba(posicionActual, matrizTableroBot)
+    elif disparoSeleccionado["Disparo"] == "Misil":
+        tDA.disparoMisil(posicionActual, matrizTableroBot)
+    elif disparoSeleccionado["Disparo"] == "Unico":
+        tDA.disparoUnico(posicionActual, matrizTableroBot)
+    else:
+        messagebox.showinfo("a")
 
 def cargarPantallaFinJuego(ventanaActual):
     ventanaActual.destroy()
@@ -435,5 +513,6 @@ informacionBarcos = [
 ]
 dicInstrucciones = {"Horizontal": True, "Vertical": False, "Positivo": True, "Negativo": False, "Barco": "Portaviones"}
 dicPosicionesBarcos = {"Portaviones": [], "Acorazado": [],"Buque de Guerra": [], "Submarino": [], "Destructor": []}
+disparoSeleccionado = {"Disparo": "Unico"}
 # Inicio del juego
 cargarPantallaInicio()
