@@ -79,7 +79,7 @@ def cargarPantallaConfiguracion(ventanaActual):
 
             matrizTableroUsuario[fila][columna] = boton
             boton.grid(row=fila, column=columna, padx=5, pady=5)
-
+            boton.config(bg="white")
             boton.bind("<Button-1>", posicionarBarco)
 
     # Crear simbologia
@@ -201,7 +201,6 @@ def posicionarBarco(evento):
                     matrizTableroUsuario[posicionActual[0] + i][posicionActual[1]].config(bg=color, text=numeroBarco)
                     posicionBarco += [[posicionActual[0] + i] + [posicionActual[1]]]
                 dicPosicionesBarcos[str(barcoActual)] = posicionBarco
-    print(dicPosicionesBarcos)
 
 
 def configurarDirecciones(direccion):
@@ -259,7 +258,6 @@ def validacioPosEnMatriz(posicion, barcoActual):
                     infoBarcos["Posicion"] = True
                     infoBarcos[barco] = barco
             if infoBarcos["Posicion"]:
-                print("Posicion en Matriz: ", infoBarcos["Posicion"])
                 return validacionBarcos(posicion)
             else:
                 messagebox.showerror("ERROR", "El barco deleccionado no puede ser posicionado segun la configuracion"
@@ -302,7 +300,6 @@ def validacionBarcos(posicion):
 
 
     posicionFutura = validacionBarcos_PosicionFutura(posicion)
-    print(posicionFutura)
     for llave in dicPosicionesBarcos:
         for contador in range(len(posicionFutura)):
             if posicionFutura[contador] in dicPosicionesBarcos[llave] and llave != dicInstrucciones["Barco"]:
@@ -342,6 +339,7 @@ def cargarPantallaJuego(ventanaActual):
 
             matrizTableroBot[fila][columna] = boton
             boton.grid(row=fila, column=columna, padx=5, pady=5)
+            boton.config(bg="white")
             boton.bind("<Button-1>",ataqueAlEnemigo)
 
     contenedorEstatusEnemigo = Frame(contenedorEnemigo)
@@ -376,6 +374,7 @@ def cargarPantallaJuego(ventanaActual):
         for columna in range(len(matrizTableroUsuario[fila])):
             boton = Button(contenedorTableroUsuario, text="   ", padx=6, pady=4)
             boton.grid(row=fila, column=columna, padx=5, pady=5)
+            boton.config(bg="white")
             matrizTableroUsuario[fila][columna] = boton
 
     for barco in dicPosicionesBarcos:
@@ -504,7 +503,7 @@ def cargarPantallaFinJuego(ventanaActual):
 matrizTableroUsuario = [[str(i) + str(j) for j in range(10)] for i in range(10)]
 matrizTableroBot = [[str(i) + str(j) for j in range(10)] for i in range(10)]
 informacionBarcos = [
-    ("", "Espacio sin tocar", ""),
+    ("", "Espacio sin tocar", "white"),
     ("1", "Portaviones", "blue", 5),
     ("2", "Acorazado", "yellow", 4),
     ("3", "Buque de Guerra", "magenta", 3),
