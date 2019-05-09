@@ -1,9 +1,5 @@
-
-
 def disparoUnico(posicion, matrizTableroBot):
-
     matrizTableroBot[posicion[0]][posicion[1]].config(bg="red")
-
 
 
 def disparoMisil(posicion,matrizTableroBot):
@@ -11,7 +7,6 @@ def disparoMisil(posicion,matrizTableroBot):
 
 
 def disparoBomba(posicion,matrizTableroBot):
-
     # rango de boma; inicioFila, incicioCol, finFila, finCol
     zonaDeAtaque = [0, 0, 2, 2]
     if posicion[0] == 0:

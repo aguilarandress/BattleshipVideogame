@@ -4,6 +4,8 @@ from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
 import tiposDeAtaques as tDA
+import botContrincante as bot
+
 
 def cargarPantallaInicio():
     """Carga la pantalla de inicio del juego
@@ -151,7 +153,7 @@ def cargarPantallaConfiguracion(ventanaActual):
 def validacionCargarPantallaDeJuego(ventana):
     global dicPosicionesBarcos
     for i in dicPosicionesBarcos:
-        if dicPosicionesBarcos[i] == []:
+        if not dicPosicionesBarcos[i]:
             return messagebox.showerror("ERROR", "Debe configurar su tablero completamente para avanzar")
     cargarPantallaJuego(ventana)
 
@@ -478,6 +480,7 @@ def ataqueAlEnemigo(evento):
         tDA.disparoUnico(posicionActual, matrizTableroBot)
     else:
         messagebox.showinfo("a")
+
 
 def cargarPantallaFinJuego(ventanaActual):
     ventanaActual.destroy()
