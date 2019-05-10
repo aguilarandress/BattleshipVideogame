@@ -128,7 +128,7 @@ def cargarPantallaConfiguracion(ventanaActual):
 
     # Creación de botones de radio para configuración
     for text, variable, valor, fila, columna in radCondfiguracion:
-        radioButton = Radiobutton(contenedorOpciones, text=text, variable=variable, value=valor, \
+        radioButton = Radiobutton(contenedorOpciones, text=text, variable=variable, value=valor,
         command=lambda direccion=text: configurarDirecciones(direccion))
         radioButton.grid(row=fila, column=columna, padx=20, pady=10)
 
@@ -354,29 +354,30 @@ def cargarPantallaJuego(ventanaActual):
     root.title("BattleShip - Pantalla de Juego")
 
     etiquetaTurno = Label(root, text="Su Turno", font=("helvetica", 18, "underline italic"))
-    etiquetaTurno.grid(row=0, column=0, sticky=NW)
+    etiquetaTurno.grid(row=0, column=0, sticky=W)
 
-    contenedorEnemigo = Frame(root)
-    contenedorEnemigo.grid(row=1, column=0, pady=(50, 0))
+    contenedorTableros = Frame(root)
+    contenedorTableros.grid(row=1, column=0, pady=15, sticky=N)
+
+    contenedorEnemigo = Frame(contenedorTableros)
+    contenedorEnemigo.grid(row=0, column=0)
     etiquetaTableroEnemigo = Label(contenedorEnemigo, text="Tablero Enemigo")
     etiquetaTableroEnemigo.grid(row=0, column=0, sticky=NW)
-    contenedorTableroEnemigo = Frame(contenedorEnemigo)
-    contenedorTableroEnemigo.grid(row=1, column=1)
 
+    contenedorTableroEnemigo = Frame(contenedorEnemigo)
+    contenedorTableroEnemigo.grid(row=1, column=1, sticky=NW)
     # Crear tablero enemigo
     for fila in range(len(matrizTableroBot)):
         for columna in range(len(matrizTableroBot[fila])):
-            boton = Button(contenedorTableroEnemigo, text="   ", padx=6, pady=4 )
+            boton = Button(contenedorTableroEnemigo, text="   ", padx=6, pady=4)
             matrizTableroBot[fila][columna] = boton
             boton.grid(row=fila, column=columna, padx=5, pady=5)
             boton.config(bg="white")
             boton.bind("<Button-1>", ataqueAlEnemigo)
-
     contenedorEstatusEnemigo = Frame(contenedorEnemigo)
-    contenedorEstatusEnemigo.grid(row=2, column=0)
+    contenedorEstatusEnemigo.grid(row=2, column=0, columnspan=2, sticky=W)
     etiquetaEstatusEnemigo = Label(contenedorEstatusEnemigo, text="Estatus Enemigo", justify=LEFT)
     etiquetaEstatusEnemigo.grid(row=0, column=0, sticky=W)
-
     estatusEnemigo = {
         "Portaviones": ("Posición Desconocida", "En pie"),
         "Acorazado": ("Posición Desconocida", "En pie"),
@@ -384,7 +385,6 @@ def cargarPantallaJuego(ventanaActual):
         "Submarino": ("Posición Desconocida", "En pie"),
         "Destructor": ("Posición Desconocida", "En pie")
     }
-
     contador = 1
     for barco in estatusEnemigo:
         texto = barco + ": " + estatusEnemigo[barco][0] + ", " + estatusEnemigo[barco][1]
@@ -392,8 +392,8 @@ def cargarPantallaJuego(ventanaActual):
         etiquetaEstatus.grid(row=contador, column=0, sticky=W)
         contador += 1
 
-    contenedorUsuario = Frame(root)
-    contenedorUsuario.grid(row=1, column=1, pady=(50, 0), padx=20)
+    contenedorUsuario = Frame(contenedorTableros)
+    contenedorUsuario.grid(row=0, column=1, sticky=W)
     etiquetaTableroUsuario = Label(contenedorUsuario, text="Mi Tablero")
     etiquetaTableroUsuario.grid(row=0, column=0, sticky=NW)
     contenedorTableroUsuario = Frame(contenedorUsuario)
@@ -406,15 +406,14 @@ def cargarPantallaJuego(ventanaActual):
             boton.grid(row=fila, column=columna, padx=5, pady=5)
             boton.config(bg="white")
             matrizTableroUsuario[fila][columna] = boton
-
+    # Configurar tablero con los barcos del usuario
     for barco in dicPosicionesBarcos:
         for tipoDeBarco in informacionBarcos:
             if barco == tipoDeBarco[1]:
                 for posicion in dicPosicionesBarcos[barco]:
                     matrizTableroUsuario[posicion[0]][posicion[1]].config(text=tipoDeBarco[0], bg=tipoDeBarco[2])
-
     contenedorEstatusUsuario = Frame(contenedorUsuario)
-    contenedorEstatusUsuario.grid(row=2, column=0)
+    contenedorEstatusUsuario.grid(row=2, column=0, columnspan=2, sticky=W)
     etiquetaEstatusUsuario = Label(contenedorEstatusUsuario, text="Mi Estatus", justify=LEFT)
     etiquetaEstatusUsuario.grid(row=0, column=0, sticky=W)
 
@@ -434,7 +433,7 @@ def cargarPantallaJuego(ventanaActual):
         contador += 1
 
     contenedorSimbologiaOpciones = Frame(root)
-    contenedorSimbologiaOpciones.grid(row=1, column=2, sticky=W)
+    contenedorSimbologiaOpciones.grid(row=1, column=1, sticky=W)
 
     contenedorSimbologia = Frame(contenedorSimbologiaOpciones)
     contenedorSimbologia.grid(row=0, column=0, sticky=N)
@@ -469,16 +468,16 @@ def cargarPantallaJuego(ventanaActual):
     variableDisparo = BooleanVar()
     variableDisparo.set(0)
     etiquetaAccionesDisponible = Label(contenedorOpciones, text="Acciones Disponibles")
-    etiquetaAccionesDisponible.grid(row=0,column=0, pady=15, sticky=W)
+    etiquetaAccionesDisponible.grid(row=0,column=0, pady=5, sticky=W)
     disparos= [
         ("Unico",),
         ("Misil",),
         ("Bomba",)
     ]
     for i in range(3):
-        disparoBoton = Radiobutton(contenedorOpciones, text= "Disparo " + disparos[i][0], variable=variableDisparo, value=i,\
+        disparoBoton = Radiobutton(contenedorOpciones, text= "Disparo " + disparos[i][0], variable=variableDisparo, value=i,
                     command=lambda disp = disparos[i][0] : actualizarDisparo(disp))
-        disparoBoton.grid(row=i+1, column=0, pady=15, sticky=W)
+        disparoBoton.grid(row=i+1, column=0, pady=3, sticky=W)
     # boton = Button(root, text="Continuar", command=lambda: cargarPantallaFinJuego(root))
     # boton.grid(row=0, column=0)
 
