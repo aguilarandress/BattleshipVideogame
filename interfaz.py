@@ -220,7 +220,7 @@ def validarPosicionEnMatriz(posicion, barcoActual):
     for barco, posMin, posMax in posConfigValidacion:
         if len(dicPosicionAnterior[barcoActual]) != 0 :
             for i in dicPosicionAnterior[barcoActual]:
-                matrizTableroUsuario[i[0]][i[1]].config(bg="grey92", text="   ")
+                matrizTableroUsuario[i[0]][i[1]].config(bg="white", text="   ")
         if diccionario["Barco"] == barco :
             if diccionario["Positivo"]:
                 if  diccionario["Vertical"] and posMin < posicion[0] :
@@ -347,7 +347,6 @@ def cargarPantallaJuego(ventanaActual):
     global matrizTableroUsuario
     global informacionBarcos
     global disparoSeleccionado
-
     ventanaActual.destroy()
 
     root = tkinter.Tk()
@@ -373,7 +372,7 @@ def cargarPantallaJuego(ventanaActual):
             matrizTableroBot[fila][columna] = boton
             boton.grid(row=fila, column=columna, padx=5, pady=5)
             boton.config(bg="white")
-            boton.bind("<Button-1>", ataqueAlEnemigo)
+            boton.bind("<Button-1>", validacionAtaque)
     contenedorEstatusEnemigo = Frame(contenedorEnemigo)
     contenedorEstatusEnemigo.grid(row=2, column=0, columnspan=2, sticky=W)
     etiquetaEstatusEnemigo = Label(contenedorEstatusEnemigo, text="Estatus Enemigo", justify=LEFT)
@@ -485,26 +484,118 @@ def cargarPantallaJuego(ventanaActual):
 
 
 def ataqueAlEnemigo(evento):
+    """Valida el tipo ataque hacia el enemigo
+
+    Entradas:
+        evento, el cual se utilizara como posicion inicial del ataque
+    Precondiciones:
+        No hay
+    Salidas:
+        No hay
+    Proceso:
+        1. Se llaman las variables globales requeridas
+        2. Obtener la grid.info del evento y convertirla en una posicion de lista
+        3. Validar sobre cual tipo de ataque se solicita y de estar recargado o bien sea el disparo
+           unico se llama la funcion correspondiente del archivo tiposDeAtaques referenciada como tda
+        4. Se guardan las posiciones afectadas en la variable global posicionAfectada
+        5. Se llama la fincion validacionAtaqueAcertado
+    """
     global disparoSeleccionado
     global matrizTableroBot
+    global posicionAfectada
     boton = evento.widget
     infoPosicion = boton.grid_info()
 
     posicionActual = [infoPosicion["row"], infoPosicion["column"]]
 
     if disparoSeleccionado["Disparo"] == "Bomba":
-        tda.disparoBomba(posicionActual, matrizTableroBot)
+        posicionAfectada += tda.disparoBomba(posicionActual, matrizTableroBot)
+        validacionAtaqueAcertado()
     elif disparoSeleccionado["Disparo"] == "Misil":
-        tda.disparoMisil(posicionActual, matrizTableroBot)
+        posicionAfectada += tda.disparoMisil(posicionActual, matrizTableroBot)
+        validacionAtaqueAcertado()
     elif disparoSeleccionado["Disparo"] == "Unico":
-        tda.disparoUnico(posicionActual, matrizTableroBot)
-    else:
-        messagebox.showinfo("a")
+        posicionAfectada += tda.disparoUnico(posicionActual, matrizTableroBot)
+        validacionAtaqueAcertado()
 
 
 def actualizarDisparo(tipoDisparo):
     global disparoSeleccionado
     disparoSeleccionado["Disparo"] = tipoDisparo
+
+
+def validacionAtaque(evento):
+    """Valida la recarga de los ataques
+
+    Entradas:
+        Evento
+    Precondiciones:
+        No hay
+    Salidas:
+        No hay
+    Proceso:
+        1.se llaman la variable global requerida
+        2.se valida el tipo de ataque seleccionado
+        3.si el ataque es el de bomba se valida si tiene igual o mas de 5 turnos desde la ultima vez
+          utilizado este ataque se resetea su contador y se le suma uno al ataque de misil
+        4.si el ataque es el de misil se valida si tiene igual o mas de 3 turnos desde la ultima vez, se llama la
+         funcion ataqueEnemigo y se le envia evento
+          utilizado este ataque se resetea su contador y se le suma uno al ataque de bomba, se llama la funcion
+          ataqueEnemigo y se le envia evento
+        5 .si el ataque es el ataque unico se le suma un 1 a los contadores de misil, bomba, se llama la funcion
+          ataqueEnemigo y se le envia evento
+        6. si no cumplen las validaciones se le hace saber al usuario la cantidad de turnos que debe esperar
+        y cuantos lleva hasta ese momento
+    """
+    global ataquesDisponibles
+
+    if disparoSeleccionado["Disparo"] == "Bomba":
+        if ataquesDisponibles["Bomba"] >= 5:
+          ataquesDisponibles["Bomba"] = 0
+          ataquesDisponibles["Misil"] += 1
+          ataqueAlEnemigo(evento)
+        else:
+            messagebox.showinfo("Recarga", "La bomba tiene un tiempo de recarga de 5 turnos y tiene " + \
+                                str(ataquesDisponibles["Bomba"]))
+    elif disparoSeleccionado["Disparo"] == "Misil":
+        if ataquesDisponibles["Misil"] >= 3:
+            ataquesDisponibles["Misil"] = 0
+            ataquesDisponibles["Bomba"] += 1
+            ataqueAlEnemigo(evento)
+        else:
+            messagebox.showinfo("Recarga", "El misil tiene un tiempo de recarga de 3 turnos y tiene " + \
+                                str(ataquesDisponibles["Misil"]))
+    elif disparoSeleccionado["Disparo"] == "Unico":
+        ataquesDisponibles["Bomba"] += 1
+        ataquesDisponibles["Misil"] += 1
+        ataqueAlEnemigo(evento)
+
+
+def validacionAtaqueAcertado():
+    """Valida los ataques realizados por la funcion ataqueAlEnemigo
+
+    Entradas:
+        No hay
+    Precondiciones:
+        No hay
+    Salidas:
+        No hay
+    Proceso:
+        1.Se llaman la variables globales requeridas
+        2.Se itera en el diccionario de posiciones de los barcos del bot
+        3.se itera en la lista de listas donde se encuentran las posiciones afectadas por
+          algun tipo de ataque
+        4.Se valida si hay un barco del bot en una posicion afectada y si es asi se cambia
+         su color a verde
+    """
+    global posicionAfectada
+    global dicPosicionesBarcosBot
+    global matrizTableroBot
+
+    for i in dicPosicionesBarcos:
+        for j in posicionAfectada:
+            if j in dicPosicionesBarcosBot[i]:
+                matrizTableroBot[j[0]][j[1]].config(bg="green")
 
 
 def cargarPantallaFinJuego(ventanaActual):
@@ -542,5 +633,7 @@ dicInstrucciones = {"Horizontal": True, "Vertical": False, "Positivo": True, "Ne
 dicPosicionesBarcos = {"Portaviones": [], "Acorazado": [],"Buque de Guerra": [], "Submarino": [], "Destructor": []}
 dicPosicionesBarcosBot = bot.posicionarBarcos()
 disparoSeleccionado = {"Disparo": "Unico"}
+posicionAfectada = []
+ataquesDisponibles = {"Misil": 0, "Bomba": 0}
 # Inicio del juego
 cargarPantallaInicio()
