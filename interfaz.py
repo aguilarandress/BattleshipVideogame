@@ -347,8 +347,8 @@ def cargarPantallaJuego(ventanaActual):
     global matrizTableroUsuario
     global informacionBarcos
     global disparoSeleccionado
-    ventanaActual.destroy()
 
+    ventanaActual.destroy()
     root = tkinter.Tk()
     root.title("BattleShip - Pantalla de Juego")
 
@@ -454,11 +454,10 @@ def cargarPantallaJuego(ventanaActual):
         (13, "Destructor con Daño", "red","5")
     ]
     for fila in simbologia:
-        boton = Button(contenedorSimbologia,text=fila[3], padx=4, pady=4 )
+        boton = Button(contenedorSimbologia,text=fila[3], padx=4, pady=4)
         boton.config(bg=fila[2])
         boton.grid(row=fila[0], column=0, padx=10, pady=5)
-
-        etiqueta = Label(contenedorSimbologia, text=fila[1] , justify= LEFT)
+        etiqueta = Label(contenedorSimbologia, text=fila[1] , justify=LEFT)
         etiqueta.grid(row=fila[0], column=1, padx=10, sticky=W)
 
     contenedorOpciones = Frame(contenedorSimbologiaOpciones)
@@ -468,14 +467,10 @@ def cargarPantallaJuego(ventanaActual):
     variableDisparo.set(0)
     etiquetaAccionesDisponible = Label(contenedorOpciones, text="Acciones Disponibles")
     etiquetaAccionesDisponible.grid(row=0,column=0, pady=5, sticky=W)
-    disparos= [
-        ("Unico",),
-        ("Misil",),
-        ("Bomba",)
-    ]
+    disparos= ["Unico", "Misil", "Bomba"]
     for i in range(3):
-        disparoBoton = Radiobutton(contenedorOpciones, text= "Disparo " + disparos[i][0], variable=variableDisparo, value=i,
-                    command=lambda disp = disparos[i][0] : actualizarDisparo(disp))
+        disparoBoton = Radiobutton(contenedorOpciones, text="Disparo " + disparos[i], variable=variableDisparo,
+                                   value=i, command=lambda disp=disparos[i]: actualizarDisparo(disp))
         disparoBoton.grid(row=i+1, column=0, pady=3, sticky=W)
     # boton = Button(root, text="Continuar", command=lambda: cargarPantallaFinJuego(root))
     # boton.grid(row=0, column=0)
@@ -550,25 +545,29 @@ def validacionAtaque(evento):
     global ataquesDisponibles
 
     if disparoSeleccionado["Disparo"] == "Bomba":
-        if ataquesDisponibles["Bomba"] >= 5:
-          ataquesDisponibles["Bomba"] = 0
-          ataquesDisponibles["Misil"] += 1
-          ataqueAlEnemigo(evento)
+        if ataquesDisponibles["Bomba"] == 5:
+            ataquesDisponibles["Bomba"] = 0
+            ataqueAlEnemigo(evento)
+            if ataquesDisponibles["Misil"] < 3:
+                ataquesDisponibles["Misil"] += 1
         else:
-            messagebox.showinfo("Recarga", "La bomba tiene un tiempo de recarga de 5 turnos y tiene " + \
+            messagebox.showinfo("Recarga", "La bomba tiene un tiempo de recarga de 5 turnos y lleva " + \
                                 str(ataquesDisponibles["Bomba"]))
     elif disparoSeleccionado["Disparo"] == "Misil":
-        if ataquesDisponibles["Misil"] >= 3:
+        if ataquesDisponibles["Misil"] == 3:
             ataquesDisponibles["Misil"] = 0
-            ataquesDisponibles["Bomba"] += 1
             ataqueAlEnemigo(evento)
+            if ataquesDisponibles["Bomba"] < 5:
+                ataquesDisponibles["Bomba"] += 1
         else:
-            messagebox.showinfo("Recarga", "El misil tiene un tiempo de recarga de 3 turnos y tiene " + \
+            messagebox.showinfo("Recarga", "El misil tiene un tiempo de recarga de 3 turnos y lleva " + \
                                 str(ataquesDisponibles["Misil"]))
     elif disparoSeleccionado["Disparo"] == "Unico":
-        ataquesDisponibles["Bomba"] += 1
-        ataquesDisponibles["Misil"] += 1
         ataqueAlEnemigo(evento)
+        if ataquesDisponibles["Bomba"] < 5:
+            ataquesDisponibles["Bomba"] += 1
+        if ataquesDisponibles["Misil"] < 3:
+            ataquesDisponibles["Misil"] += 1
 
 
 def validacionAtaqueAcertado():
@@ -634,6 +633,6 @@ dicPosicionesBarcos = {"Portaviones": [], "Acorazado": [],"Buque de Guerra": [],
 dicPosicionesBarcosBot = bot.posicionarBarcos()
 disparoSeleccionado = {"Disparo": "Unico"}
 posicionAfectada = []
-ataquesDisponibles = {"Misil": 0, "Bomba": 0}
+ataquesDisponibles = {"Misil": 3, "Bomba": 5}
 # Inicio del juego
 cargarPantallaInicio()

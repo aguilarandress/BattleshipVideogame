@@ -1,4 +1,6 @@
 import random
+
+
 def disparoUnico(posicion, matrizTableroBot):
     """Ejecuta el disparo unico
 
@@ -16,7 +18,8 @@ def disparoUnico(posicion, matrizTableroBot):
     matrizTableroBot[posicion[0]][posicion[1]].config(bg="red")
     return [[posicion[0], posicion[1]]]
 
-def disparoMisil(posicion,matrizTableroBot):
+
+def disparoMisil(posicion, matrizTableroBot):
     """Ejecuta el disparo del misil
 
         Entradas:
@@ -77,23 +80,24 @@ def disparoMisil(posicion,matrizTableroBot):
                 casillaAfectada.append([i,posicion[1]])
             return casillaAfectada
 
-def disparoBomba(posicion,matrizTableroBot):
+
+def disparoBomba(posicion, matrizTableroBot):
     """Ejecuta el disparo de la bomba
 
-        Entradas:
-            posicion y tablero del bot
-        Precondiciones:
-            No hay
-        Salidas:
-            la posicion afectada
-        Proceso:
-            1.La funcion cambia el color del los botones desde la posicion seleccionada por el usuario
-              dependiendo de la posicion solicitada puesto que es una zona de 3x3
-            2.Segun la posicion se valida con una logica para evitar contadores fuera del rango de la matriz
-            3.Se itera segun los rangos para los contadores ya validados y se va cambiando su color a rojo
-            3.finalmente se retorna las posiciones afectadas para actualizar la variable global
-             posicionAfectada
-        """
+    Entradas:
+        posicion y tablero del bot
+    Precondiciones:
+        No hay
+    Salidas:
+        la posicion afectada
+    Proceso:
+        1.La funcion cambia el color del los botones desde la posicion seleccionada por el usuario
+        dependiendo de la posicion solicitada puesto que es una zona de 3x3
+        2.Segun la posicion se valida con una logica para evitar contadores fuera del rango de la matriz
+        3.Se itera segun los rangos para los contadores ya validados y se va cambiando su color a rojo
+        4.finalmente se retorna las posiciones afectadas para actualizar la variable global
+         posicionAfectada
+    """
     casillaAfectada = []
     # rango de boma; inicioFila, incicioCol, finFila, finCol
     zonaDeAtaque = [0, 0, 2, 2]
