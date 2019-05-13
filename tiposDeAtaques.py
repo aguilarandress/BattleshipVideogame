@@ -40,7 +40,7 @@ def disparoMisil(posicion, matrizTableroBot):
             5.finalmente se retorna las posiciones afectadas para actualizar la variable global
              posicionAfectada
         """
-    # posicionamiento de forma horizontal o no horizontal y  positivo o no negativo
+    # posicionamiento de forma horizontal o no horizontal y  positivo o no positivo
     posicionamientoRandom = [True, True]
     casillaAfectada = []
     posicionamientoRandom[0] = random.choice([True, False])
