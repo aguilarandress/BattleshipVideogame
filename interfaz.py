@@ -338,6 +338,8 @@ def cargarPantallaJuego(ventanaActual):
     global matrizTableroUsuario
     global informacionBarcos
     global disparoSeleccionado
+    global estatusActualBot
+    global estatusActualUsuario
 
     ventanaActual.destroy()
     root = tkinter.Tk()
@@ -369,18 +371,22 @@ def cargarPantallaJuego(ventanaActual):
     etiquetaEstatusEnemigo = Label(contenedorEstatusEnemigo, text="Estatus Enemigo", justify=LEFT)
     etiquetaEstatusEnemigo.grid(row=0, column=0, sticky=W)
     estatusEnemigo = {
-        "Portaviones": ("Posición Desconocida", "En pie"),
-        "Acorazado": ("Posición Desconocida", "En pie"),
-        "Buque de Guerra": ("Posición Desconocida", "En pie"),
-        "Submarino": ("Posición Desconocida", "En pie"),
-        "Destructor": ("Posición Desconocida", "En pie")
+        "Portaviones": ("Posición Desconocida", "En pie", 5),
+        "Acorazado": ("Posición Desconocida", "En pie", 4),
+        "Buque de Guerra": ("Posición Desconocida", "En pie", 3),
+        "Submarino": ("Posición Desconocida", "En pie", 3),
+        "Destructor": ("Posición Desconocida", "En pie", 2)
     }
+
     contador = 1
     for barco in estatusEnemigo:
-        texto = barco + ": " + estatusEnemigo[barco][0] + ", " + estatusEnemigo[barco][1]
-        etiquetaEstatus = Label(contenedorEstatusEnemigo, text=texto, justify=LEFT)
+        texto = StringVar()
+        textoContenido = barco + ": " + estatusEnemigo[barco][0] + ", " + estatusEnemigo[barco][1]
+        texto.set(textoContenido)
+        etiquetaEstatus = Label(contenedorEstatusEnemigo, textvariable=texto, justify=LEFT)
         etiquetaEstatus.grid(row=contador, column=0, sticky=W)
         contador += 1
+        estatusActualBot[barco] = [etiquetaEstatus ,estatusEnemigo[barco][2]]
 
     contenedorUsuario = Frame(contenedorTableros)
     contenedorUsuario.grid(row=0, column=1, sticky=W)
@@ -408,19 +414,22 @@ def cargarPantallaJuego(ventanaActual):
     etiquetaEstatusUsuario.grid(row=0, column=0, sticky=W)
 
     estatusUsuario = {
-        "Portaviones": "Sin daño",
-        "Acorazado": "Sin daño",
-        "Buque de Guerra": "Sin daño",
-        "Submarino": "Sin daño",
-        "Destructor": "Sin daño"
+        "Portaviones": ("Sin daño", 5),
+        "Acorazado": ("Sin daño", 4),
+        "Buque de Guerra": ("Sin daño", 3),
+        "Submarino": ("Sin daño", 3),
+        "Destructor": ("Sin daño", 2)
     }
 
     contador = 1
     for barco in estatusUsuario:
-        texto = barco + ": " + estatusUsuario[barco]
-        etiquetaEstatus = Label(contenedorEstatusUsuario, text=texto, justify=LEFT)
+        texto = StringVar()
+        textoContenido = barco + ": " + estatusUsuario[barco][0]
+        texto.set(textoContenido)
+        etiquetaEstatus = Label(contenedorEstatusUsuario, textvariable=texto, justify=LEFT)
         etiquetaEstatus.grid(row=contador, column=0, sticky=W)
         contador += 1
+        estatusActualUsuario[barco] = [etiquetaEstatus, estatusUsuario[barco][1]]
 
     contenedorSimbologiaOpciones = Frame(root)
     contenedorSimbologiaOpciones.grid(row=1, column=1, sticky=W)
@@ -436,7 +445,7 @@ def cargarPantallaJuego(ventanaActual):
         (4, "Portaviones Sin Daño", "blue","1"),
         (5, "Portaviones Con Daño", "red","1"),
         (6, "Acorazado Sin Daño", "yellow","2"),
-        (7, "Acorazado Con Daño", "yellow","2"),
+        (7, "Acorazado Con Daño", "red","2"),
         (8, "Buque de Guerra Sin Daño", "pink","3"),
         (9, "Buque de Guerra con Daño", "red","3"),
         (10, "Submarino Sin Daño", "cyan","4"),
@@ -463,8 +472,6 @@ def cargarPantallaJuego(ventanaActual):
         disparoBoton = Radiobutton(contenedorOpciones, text="Disparo " + disparos[i], variable=variableDisparo,
                                    value=i, command=lambda disp=disparos[i]: actualizarDisparo(disp))
         disparoBoton.grid(row=i+1, column=0, pady=3, sticky=W)
-    # boton = Button(root, text="Continuar", command=lambda: cargarPantallaFinJuego(root))
-    # boton.grid(row=0, column=0)
 
     root.mainloop()
 
@@ -553,10 +560,8 @@ def ataqueAlEnemigo(evento):
     elif disparoSeleccionado["Disparo"] == "Unico":
         posicionAfectada += tda.disparoUnico(posicionActual, matrizTableroBot)
     validarAtaqueAcertado()
-    bot.atacarUsuario(matrizTableroUsuario, ataquesDisponiblesBot)
-    # TODO: Implementar cambio de estatus de la flota
-    print(ataquesDisponiblesBot)
-
+    posicionAtacada = bot.atacarUsuario(matrizTableroUsuario, ataquesDisponiblesBot)
+    validarAtaqueAcertadoBot(posicionAtacada)
 
 def validarAtaqueAcertado():
     """Valida los ataques realizados por la funcion ataqueAlEnemigo
@@ -578,12 +583,46 @@ def validarAtaqueAcertado():
     global posicionAfectada
     global dicPosicionesBarcosBot
     global matrizTableroBot
+    global estatusActualBot
 
     for i in dicPosicionesBarcosBot:
         for j in posicionAfectada:
             if j in dicPosicionesBarcosBot[i]:
                 matrizTableroBot[j[0]][j[1]].config(bg="green")
+                dicPosicionesBarcosBot[i].remove(j)
+                estatusActualBot["Posiciones"][i] += [j]
+                estatusBarcosBot(i)
+            else:
+                if j in estatusActualBot["Posiciones"][i]:
+                    matrizTableroBot[j[0]][j[1]].config(bg="green")
     posicionAfectada = []
+
+
+def validarAtaqueAcertadoBot(posicionDisparada):
+    """Valida los ataques realizados por la funcion ataqueAlEnemigo
+
+    Entradas:
+        Posicion del disparo
+    Precondiciones:
+        No hay
+    Salidas:
+        No hay
+    Proceso:
+        1.Se llaman la variables globales requeridas
+        2.Se itera en el diccionario de posiciones de los barcos del bot
+        3.se itera en la lista de listas donde se encuentran las posiciones afectadas por
+          algun tipo de ataque
+        4.Se valida si hay un barco del bot en una posicion afectada y si es asi se cambia
+         su color a verde
+    """
+    global dicPosicionesBarcos
+    global matrizTableroUsuario
+
+    for i in dicPosicionesBarcos:
+        for j in posicionDisparada:
+            if j in dicPosicionesBarcos[i]:
+                dicPosicionesBarcos[i].remove(j)
+                estatusBarcosUsuario(i)
 
 
 def actualizarDisparo(tipoDisparo):
@@ -611,6 +650,31 @@ def cargarPantallaFinJuego(ventanaActual):
     root.mainloop()
 
 
+def estatusBarcosBot(barco):
+    global estatusActualBot
+    if estatusActualBot[barco][1] > 1:
+        estatusActualBot[barco][1] -= 1
+    else:
+        texto = StringVar()
+        texto.set(barco + ": Ubicacion: " + str(estatusActualBot["Posiciones"][barco]) + ", hundido")
+        estatusActualBot[barco][0].config(textvariable=texto)
+
+
+def estatusBarcosUsuario(barco):
+    global dicPosicionesBarcos
+    global estatusActualUsuario
+    if estatusActualUsuario[barco][1] > 1:
+        estatusActualUsuario[barco][1] -= 1
+        texto = StringVar()
+        texto.set(barco + ", dañado")
+        estatusActualUsuario[barco][0].config(textvariable=texto)
+
+    else:
+        texto = StringVar()
+        texto.set(barco + ", hundido")
+        estatusActualUsuario[barco][0].config(textvariable=texto)
+
+
 # Variables globales
 matrizTableroUsuario = [[0 for j in range(10)] for i in range(10)]
 matrizTableroBot = [[0 for j in range(10)] for i in range(10)]
@@ -629,5 +693,8 @@ disparoSeleccionado = {"Disparo": "Unico"}
 posicionAfectada = []
 ataquesDisponiblesUsuario = {"Misil": 0, "Bomba": 0}
 ataquesDisponiblesBot = {"Misil": 0, "Bomba": 0}
+estatusActualUsuario = {}
+estatusActualBot = {"Posiciones": {"Portaviones": [], "Acorazado": [],"Buque de Guerra": [], "Submarino": [],\
+                    "Destructor": []}}
 # Inicio del juego
 cargarPantallaInicio()
