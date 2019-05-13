@@ -1,4 +1,5 @@
-from random import randint
+from random import randint, choice
+import tiposDeAtaques as tda
 
 
 def posicionarBarcos():
@@ -70,4 +71,50 @@ def posicionarBarcos():
     return posicionesBarcos
 
 
-# TODO: Implementar ataques del bot
+def atacarUsuario(matrizTableroUsuario, ataquesDisponibles):
+    """Realiza un ataque aleatorio al tablero del usuario
+
+    Entradas:
+        matrizTableroUsuario: es una matriz
+        ataquesDisponibles: es un diccionario
+    Precondiciones:
+        matrizTableroUsuario es una matriz de botones
+        ataquesDisponibles es un diccionario con llaves de
+        "Misil" y "Bomba"
+    Salidas:
+        Retorna una lista con las coordenadas atacadas
+    Proceso:
+        1. Se inicializa una variable con los tipos de ataques
+        2. Dependiendo de si los ataques están cargados, estos se agregan a dicha variable
+        3. Luego de manera aleatoria se escoge el ataque y el lugar de ataque
+        4. Por último, se ataca en la posición con el ataque utilizado y se recargan
+        los demás ataques
+    """
+    tiposDeAtaques = ["Unico"]
+    if ataquesDisponibles["Bomba"] == 5:
+        tiposDeAtaques.append("Bomba")
+    if ataquesDisponibles["Misil"] == 3:
+        tiposDeAtaques.append("Misil")
+
+    ataqueUtilizado = choice(tiposDeAtaques)
+    lugarDeAtaque = [randint(0, 9), randint(0, 9)]
+    if ataqueUtilizado == "Unico":
+        if ataquesDisponibles["Bomba"] < 5:
+            ataquesDisponibles["Bomba"] += 1
+        if ataquesDisponibles["Misil"] < 3:
+            ataquesDisponibles["Misil"] += 1
+        return tda.disparoUnico(lugarDeAtaque, matrizTableroUsuario)
+
+    if ataqueUtilizado == "Bomba":
+        if ataquesDisponibles["Misil"] < 3:
+            ataquesDisponibles["Misil"] += 1
+        ataquesDisponibles[ataqueUtilizado] = 0
+        return tda.disparoBomba(lugarDeAtaque, matrizTableroUsuario)
+
+    if ataqueUtilizado == "Misil":
+        if ataquesDisponibles["Bomba"] < 5:
+            ataquesDisponibles["Bomba"] += 1
+        ataquesDisponibles[ataqueUtilizado] = 0
+        return tda.disparoMisil(lugarDeAtaque, matrizTableroUsuario)
+
+

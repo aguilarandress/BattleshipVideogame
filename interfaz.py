@@ -31,7 +31,6 @@ def cargarPantallaInicio():
     backgroundCanvas.grid(row=0, column=0)
     imagenBackground = ImageTk.PhotoImage(Image.open("background.jpg"))
     backgroundCanvas.create_image(0, 0, anchor=NW, image=imagenBackground)
-
     boton = Button(root, text="Jugar", command=lambda: cargarPantallaConfiguracion(root))
     boton.grid(row=0, column=0, sticky=NW)
     boton.config(font=("helvetica", 20, "underline italic"))
@@ -63,13 +62,10 @@ def cargarPantallaConfiguracion(ventanaActual):
     global dicInstrucciones
 
     ventanaActual.destroy()
-
     root = tkinter.Tk()
     root.title("BattleShip - Configuración")
-
     contenedorTablero = Frame(root)
     contenedorTablero.grid(row=0, column=0, padx=10, pady=10)
-
     # Insertar matriz de botones en el tablero
     for fila in range(len(matrizTableroUsuario)):
         for columna in range(len(matrizTableroUsuario[fila])):
@@ -84,7 +80,6 @@ def cargarPantallaConfiguracion(ventanaActual):
     contenedorSimbologia.grid(row=0, column=1)
     etiquetaSimbologia = Label(contenedorSimbologia, text="Simbología", anchor=W)
     etiquetaSimbologia.grid(row=0, column=0, pady=10)
-
     # Insertar tabla de simbologia con botones con colores y sus etiquetas
     for i in range(len(informacionBarcos)):
         boton = Button(contenedorSimbologia, text=informacionBarcos[i][0], padx=5, pady=5 )
@@ -103,7 +98,6 @@ def cargarPantallaConfiguracion(ventanaActual):
     etiquetaOpciones.grid(row=0, column=0, pady=(0, 15))
     etiquetaAgregar = Label(contenedorOpciones, text="Añadir")
     etiquetaAgregar.grid(row=1, column=0)
-
     # Crear menu despegable
     variableMenuDesple = StringVar()
     menuDesplegable = ttk.Combobox(contenedorOpciones, state="readonly", textvariable=variableMenuDesple)
@@ -117,7 +111,6 @@ def cargarPantallaConfiguracion(ventanaActual):
     negPosVariable = BooleanVar()
     horiVertiVariable.set(1)
     negPosVariable.set(1)
-
     # Texto, Variable, Valor, Fila, Columna
     radCondfiguracion = (
         ("Horizontal", horiVertiVariable, 1, 2, 0),
@@ -125,7 +118,6 @@ def cargarPantallaConfiguracion(ventanaActual):
         ("Positivo", negPosVariable, 1, 3, 0),
         ("Negativo", negPosVariable, 0, 3, 1)
     )
-
     # Creación de botones de radio para configuración
     for text, variable, valor, fila, columna in radCondfiguracion:
         radioButton = Radiobutton(contenedorOpciones, text=text, variable=variable, value=valor,
@@ -135,7 +127,6 @@ def cargarPantallaConfiguracion(ventanaActual):
     botonJugar = Button(root, text="Continuar", command=lambda: validarBarcosPosicionados(root))
     botonJugar.grid(row=1, column=0, sticky=SW)
     botonJugar.config(font=("helvetica", 12, "underline"))
-
     root.mainloop()
 
 
@@ -372,7 +363,7 @@ def cargarPantallaJuego(ventanaActual):
             matrizTableroBot[fila][columna] = boton
             boton.grid(row=fila, column=columna, padx=5, pady=5)
             boton.config(bg="white")
-            boton.bind("<Button-1>", validacionAtaque)
+            boton.bind("<Button-1>", validarTipoDeAtaque)
     contenedorEstatusEnemigo = Frame(contenedorEnemigo)
     contenedorEstatusEnemigo.grid(row=2, column=0, columnspan=2, sticky=W)
     etiquetaEstatusEnemigo = Label(contenedorEstatusEnemigo, text="Estatus Enemigo", justify=LEFT)
@@ -478,48 +469,7 @@ def cargarPantallaJuego(ventanaActual):
     root.mainloop()
 
 
-def ataqueAlEnemigo(evento):
-    """Valida el tipo ataque hacia el enemigo
-
-    Entradas:
-        evento, el cual se utilizara como posicion inicial del ataque
-    Precondiciones:
-        No hay
-    Salidas:
-        No hay
-    Proceso:
-        1. Se llaman las variables globales requeridas
-        2. Obtener la grid.info del evento y convertirla en una posicion de lista
-        3. Validar sobre cual tipo de ataque se solicita y de estar recargado o bien sea el disparo
-           unico se llama la funcion correspondiente del archivo tiposDeAtaques referenciada como tda
-        4. Se guardan las posiciones afectadas en la variable global posicionAfectada
-        5. Se llama la fincion validacionAtaqueAcertado
-    """
-    global disparoSeleccionado
-    global matrizTableroBot
-    global posicionAfectada
-    boton = evento.widget
-    infoPosicion = boton.grid_info()
-
-    posicionActual = [infoPosicion["row"], infoPosicion["column"]]
-
-    if disparoSeleccionado["Disparo"] == "Bomba":
-        posicionAfectada += tda.disparoBomba(posicionActual, matrizTableroBot)
-        validacionAtaqueAcertado()
-    elif disparoSeleccionado["Disparo"] == "Misil":
-        posicionAfectada += tda.disparoMisil(posicionActual, matrizTableroBot)
-        validacionAtaqueAcertado()
-    elif disparoSeleccionado["Disparo"] == "Unico":
-        posicionAfectada += tda.disparoUnico(posicionActual, matrizTableroBot)
-        validacionAtaqueAcertado()
-
-
-def actualizarDisparo(tipoDisparo):
-    global disparoSeleccionado
-    disparoSeleccionado["Disparo"] = tipoDisparo
-
-
-def validacionAtaque(evento):
+def validarTipoDeAtaque(evento):
     """Valida la recarga de los ataques
 
     Entradas:
@@ -542,35 +492,73 @@ def validacionAtaque(evento):
         6. si no cumplen las validaciones se le hace saber al usuario la cantidad de turnos que debe esperar
         y cuantos lleva hasta ese momento
     """
-    global ataquesDisponibles
+    global ataquesDisponiblesUsuario
 
     if disparoSeleccionado["Disparo"] == "Bomba":
-        if ataquesDisponibles["Bomba"] == 5:
-            ataquesDisponibles["Bomba"] = 0
+        if ataquesDisponiblesUsuario["Bomba"] == 5:
+            ataquesDisponiblesUsuario["Bomba"] = 0
             ataqueAlEnemigo(evento)
-            if ataquesDisponibles["Misil"] < 3:
-                ataquesDisponibles["Misil"] += 1
+            if ataquesDisponiblesUsuario["Misil"] < 3:
+                ataquesDisponiblesUsuario["Misil"] += 1
         else:
             messagebox.showinfo("Recarga", "La bomba tiene un tiempo de recarga de 5 turnos y lleva " + \
-                                str(ataquesDisponibles["Bomba"]))
+                                str(ataquesDisponiblesUsuario["Bomba"]))
     elif disparoSeleccionado["Disparo"] == "Misil":
-        if ataquesDisponibles["Misil"] == 3:
-            ataquesDisponibles["Misil"] = 0
+        if ataquesDisponiblesUsuario["Misil"] == 3:
+            ataquesDisponiblesUsuario["Misil"] = 0
             ataqueAlEnemigo(evento)
-            if ataquesDisponibles["Bomba"] < 5:
-                ataquesDisponibles["Bomba"] += 1
+            if ataquesDisponiblesUsuario["Bomba"] < 5:
+                ataquesDisponiblesUsuario["Bomba"] += 1
         else:
             messagebox.showinfo("Recarga", "El misil tiene un tiempo de recarga de 3 turnos y lleva " + \
-                                str(ataquesDisponibles["Misil"]))
+                                str(ataquesDisponiblesUsuario["Misil"]))
     elif disparoSeleccionado["Disparo"] == "Unico":
         ataqueAlEnemigo(evento)
-        if ataquesDisponibles["Bomba"] < 5:
-            ataquesDisponibles["Bomba"] += 1
-        if ataquesDisponibles["Misil"] < 3:
-            ataquesDisponibles["Misil"] += 1
+        if ataquesDisponiblesUsuario["Bomba"] < 5:
+            ataquesDisponiblesUsuario["Bomba"] += 1
+        if ataquesDisponiblesUsuario["Misil"] < 3:
+            ataquesDisponiblesUsuario["Misil"] += 1
 
 
-def validacionAtaqueAcertado():
+def ataqueAlEnemigo(evento):
+    """Valida el tipo ataque hacia el enemigo
+
+    Entradas:
+        evento, el cual se utilizara como posicion inicial del ataque
+    Precondiciones:
+        No hay
+    Salidas:
+        No hay
+    Proceso:
+        1. Se llaman las variables globales requeridas
+        2. Obtener la grid.info del evento y convertirla en una posicion de lista
+        3. Validar sobre cual tipo de ataque se solicita y de estar recargado o bien sea el disparo
+           unico se llama la funcion correspondiente del archivo tiposDeAtaques referenciada como tda
+        4. Se guardan las posiciones afectadas en la variable global posicionAfectada
+        5. Se llama la fincion validacionAtaqueAcertado
+    """
+    global disparoSeleccionado
+    global matrizTableroBot
+    global posicionAfectada
+    global ataquesDisponiblesBot
+
+    boton = evento.widget
+    infoPosicion = boton.grid_info()
+    posicionActual = [infoPosicion["row"], infoPosicion["column"]]
+
+    if disparoSeleccionado["Disparo"] == "Bomba":
+        posicionAfectada += tda.disparoBomba(posicionActual, matrizTableroBot)
+    elif disparoSeleccionado["Disparo"] == "Misil":
+        posicionAfectada += tda.disparoMisil(posicionActual, matrizTableroBot)
+    elif disparoSeleccionado["Disparo"] == "Unico":
+        posicionAfectada += tda.disparoUnico(posicionActual, matrizTableroBot)
+    validarAtaqueAcertado()
+    bot.atacarUsuario(matrizTableroUsuario, ataquesDisponiblesBot)
+    # TODO: Implementar cambio de estatus de la flota
+    print(ataquesDisponiblesBot)
+
+
+def validarAtaqueAcertado():
     """Valida los ataques realizados por la funcion ataqueAlEnemigo
 
     Entradas:
@@ -591,10 +579,16 @@ def validacionAtaqueAcertado():
     global dicPosicionesBarcosBot
     global matrizTableroBot
 
-    for i in dicPosicionesBarcos:
+    for i in dicPosicionesBarcosBot:
         for j in posicionAfectada:
             if j in dicPosicionesBarcosBot[i]:
                 matrizTableroBot[j[0]][j[1]].config(bg="green")
+    posicionAfectada = []
+
+
+def actualizarDisparo(tipoDisparo):
+    global disparoSeleccionado
+    disparoSeleccionado["Disparo"] = tipoDisparo
 
 
 def cargarPantallaFinJuego(ventanaActual):
@@ -633,6 +627,7 @@ dicPosicionesBarcos = {"Portaviones": [], "Acorazado": [],"Buque de Guerra": [],
 dicPosicionesBarcosBot = bot.posicionarBarcos()
 disparoSeleccionado = {"Disparo": "Unico"}
 posicionAfectada = []
-ataquesDisponibles = {"Misil": 3, "Bomba": 5}
+ataquesDisponiblesUsuario = {"Misil": 0, "Bomba": 0}
+ataquesDisponiblesBot = {"Misil": 0, "Bomba": 0}
 # Inicio del juego
 cargarPantallaInicio()

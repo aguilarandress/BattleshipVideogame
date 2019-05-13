@@ -50,9 +50,9 @@ def disparoMisil(posicion, matrizTableroBot):
             horiVertiFinal = posicion[1] + 3
             if horiVertiFinal > 9:
                 horiVertiFinal = 10
-            for i in range(posicion[1],horiVertiFinal):
+            for i in range(posicion[1], horiVertiFinal):
                 matrizTableroBot[posicion[0]][i].config(bg="red")
-                casillaAfectada.append([posicion[0],i])
+                casillaAfectada.append([posicion[0], i])
             return casillaAfectada
         else:
             horiVertiInicio = posicion[1] - 3
@@ -60,7 +60,7 @@ def disparoMisil(posicion, matrizTableroBot):
                 horiVertiInicio = -1
             for i in range(posicion[1], horiVertiInicio, -1):
                 matrizTableroBot[posicion[0]][i].config(bg="red")
-                casillaAfectada.append([posicion[0],i])
+                casillaAfectada.append([posicion[0], i])
             return casillaAfectada
     else:
         if posicionamientoRandom[1]:
@@ -69,7 +69,7 @@ def disparoMisil(posicion, matrizTableroBot):
                 horiVertiInicio = -1
             for i in range(posicion[0], horiVertiInicio, -1):
                 matrizTableroBot[i][posicion[1]].config(bg="red")
-                casillaAfectada.append([i,posicion[1]])
+                casillaAfectada.append([i, posicion[1]])
             return casillaAfectada
         else:
             horiVertiFinal = posicion[0] + 3
@@ -77,7 +77,7 @@ def disparoMisil(posicion, matrizTableroBot):
                 horiVertiFinal = 10
             for i in range(posicion[0],horiVertiFinal):
                 matrizTableroBot[i][posicion[1]].config(bg="red")
-                casillaAfectada.append([i,posicion[1]])
+                casillaAfectada.append([i, posicion[1]])
             return casillaAfectada
 
 
@@ -99,7 +99,7 @@ def disparoBomba(posicion, matrizTableroBot):
          posicionAfectada
     """
     casillaAfectada = []
-    # rango de boma; inicioFila, incicioCol, finFila, finCol
+    # rango de bomba; inicioFila, incicioCol, finFila, finCol
     zonaDeAtaque = [0, 0, 2, 2]
     if posicion[0] == 0:
         zonaDeAtaque[0] = 0
@@ -141,6 +141,6 @@ def disparoBomba(posicion, matrizTableroBot):
     for fila in range(zonaDeAtaque[0], zonaDeAtaque[2] + 1):
         for col in range(zonaDeAtaque[1], zonaDeAtaque[3] + 1):
             matrizTableroBot[fila][col].config(bg="red")
-            casillaAfectada += [[fila,col]]
+            casillaAfectada += [[fila, col]]
     return casillaAfectada
 
