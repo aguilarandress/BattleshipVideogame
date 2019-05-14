@@ -3,9 +3,10 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-import tiposDeAtaques as tda
-import botContrincante as bot
 import pygame
+import tiposDeAtaques as tda
+import funcionesAuxiliares as fa
+import botContrincante as bot
 
 
 def cargarPantallaInicio():
@@ -432,7 +433,7 @@ def cargarPantallaJuego():
     etiquetaTurno.grid(row=0, column=0, sticky=W)
 
     contenedorTableros = Frame(ventanaRoot)
-    contenedorTableros.grid(row=1, column=0, pady=15, sticky=N)
+    contenedorTableros.grid(row=1, column=0, pady=30, sticky=N)
 
     contenedorEnemigo = Frame(contenedorTableros)
     contenedorEnemigo.grid(row=0, column=0)
@@ -450,7 +451,7 @@ def cargarPantallaJuego():
             boton.config(bg="white")
             boton.bind("<Button-1>", validarTipoDeAtaque)
     contenedorEstatusEnemigo = Frame(contenedorEnemigo)
-    contenedorEstatusEnemigo.grid(row=2, column=0, columnspan=2, sticky=W)
+    contenedorEstatusEnemigo.grid(row=2, column=0, columnspan=2, sticky=SW)
     etiquetaEstatusEnemigo = Label(contenedorEstatusEnemigo, text="Estatus Enemigo", justify=LEFT)
     etiquetaEstatusEnemigo.grid(row=0, column=0, sticky=W)
     estatusEnemigo = {
@@ -467,7 +468,7 @@ def cargarPantallaJuego():
         textoContenido = barco + ": " + estatusEnemigo[barco][0] + ", " + estatusEnemigo[barco][1]
         texto.set(textoContenido)
         etiquetaEstatus = Label(contenedorEstatusEnemigo, textvariable=texto, justify=LEFT)
-        etiquetaEstatus.grid(row=contador, column=0, sticky=W)
+        etiquetaEstatus.grid(row=contador, column=0, sticky=SW)
         contador += 1
         estatusActualBot[barco] = [etiquetaEstatus ,estatusEnemigo[barco][2]]
 
@@ -492,7 +493,7 @@ def cargarPantallaJuego():
                 for posicion in dicPosicionesBarcos[barco]:
                     matrizTableroUsuario[posicion[0]][posicion[1]].config(text=tipoDeBarco[0], bg=tipoDeBarco[2])
     contenedorEstatusUsuario = Frame(contenedorUsuario)
-    contenedorEstatusUsuario.grid(row=2, column=0, columnspan=2, sticky=W)
+    contenedorEstatusUsuario.grid(row=2, column=0, columnspan=2, sticky=SW)
     etiquetaEstatusUsuario = Label(contenedorEstatusUsuario, text="Mi Estatus", justify=LEFT)
     etiquetaEstatusUsuario.grid(row=0, column=0, sticky=W)
 
@@ -515,12 +516,12 @@ def cargarPantallaJuego():
         estatusActualUsuario[barco] = [etiquetaEstatus, estatusUsuario[barco][1]]
 
     contenedorSimbologiaOpciones = Frame(ventanaRoot)
-    contenedorSimbologiaOpciones.grid(row=1, column=1, sticky=W)
+    contenedorSimbologiaOpciones.grid(row=1, column=1)
 
     contenedorSimbologia = Frame(contenedorSimbologiaOpciones)
     contenedorSimbologia.grid(row=0, column=0, sticky=N)
-    etiquetaSimbologia= Label(contenedorSimbologia, text="Simbologia")
-    etiquetaSimbologia.grid(row=0, column=0, sticky=NW)
+    etiquetaSimbologia = Label(contenedorSimbologia, text="Simbologia", justify=LEFT)
+    etiquetaSimbologia.grid(row=0, column=0)
     simbologia = [
         (1, "Espacio Sin Tocar", "white","  "),
         (2, "Disparo Acertado", "green","  "),
@@ -537,10 +538,10 @@ def cargarPantallaJuego():
         (13, "Destructor con Daño", "red","5")
     ]
     for fila in simbologia:
-        boton = Button(contenedorSimbologia,text=fila[3], padx=4, pady=4)
+        boton = Button(contenedorSimbologia, text=fila[3], padx=4, pady=4)
         boton.config(bg=fila[2])
         boton.grid(row=fila[0], column=0, padx=10, pady=5)
-        etiqueta = Label(contenedorSimbologia, text=fila[1] , justify=LEFT)
+        etiqueta = Label(contenedorSimbologia, text=fila[1], justify=LEFT)
         etiqueta.grid(row=fila[0], column=1, padx=10, sticky=W)
 
     contenedorOpciones = Frame(contenedorSimbologiaOpciones)
@@ -555,7 +556,8 @@ def cargarPantallaJuego():
         disparoBoton = Radiobutton(contenedorOpciones, text="Disparo " + disparos[i], variable=variableDisparo,
                                    value=i, command=lambda disp=disparos[i]: actualizarDisparo(disp))
         disparoBoton.grid(row=i+1, column=0, pady=3, sticky=W)
-
+    botonAbandonar = Button(contenedorOpciones, text="Abandonar", command=lambda: ventanaRoot.destroy())
+    botonAbandonar.grid(row=4, column=0, pady=5)
     ventanaRoot.mainloop()
 
 
@@ -830,7 +832,8 @@ def actualizarEstatusBot(barco):
         estatusActualBot[barco][1] -= 1
     else:
         texto = StringVar()
-        texto.set(barco + ": Ubicacion: " + str(estatusActualBot["Posiciones"][barco]) + ", hundido")
+        coordenadasBarco = fa.formatearParesOrdenados(estatusActualBot["Posiciones"][barco])
+        texto.set(barco + ": Ubicacion: " + coordenadasBarco + ", hundido")
         estatusActualBot[barco][0].config(textvariable=texto)
 
 
