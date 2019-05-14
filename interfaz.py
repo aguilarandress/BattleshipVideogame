@@ -5,7 +5,7 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 import tiposDeAtaques as tda
 import botContrincante as bot
-
+import pygame
 
 def cargarPantallaInicio():
     """Carga la pantalla de inicio del juego
@@ -25,6 +25,7 @@ def cargarPantallaInicio():
         en la ventana
     """
     global ventanaRoot
+    ventanaRoot.destroy()
     ventanaRoot = tkinter.Tk()
     ventanaRoot.title("BattleShip v1.0.0")
     # Insertar imagen background
@@ -238,6 +239,21 @@ def validarPosicionEnMatriz(posicion, barcoActual):
 
 
 def validarColisionDeBarcos(posicion):
+    """Valida la colision de barcos en su configuracion
+
+            Entradas:
+                posicion
+            Precondiciones:
+                No hay
+            Salidas:
+                Verdadero si se puede colocar el barco y false si no se puede colocar porque sucede
+                una colision
+            Proceso:
+                1.Primero se utiliza una subfuncion o funcion auxiliar para saber la posicion futura
+                que tendra el barco seleccionado
+                2.Luego se itera en las posiciones de los barco excepto el barco seleccionado y si en
+                alguna posicion hay coincidencia muestra un mensaje al usuario para informarle
+            """
     def revisarPosicionFutura(posicionActual):
         global informacionBarcos
         global matrizTableroUsuario
@@ -245,7 +261,7 @@ def validarColisionDeBarcos(posicion):
         barcoActual = dicInstrucciones["Barco"]
         posicionFutura = []
 
-        # Obtener información del barco
+        # Obtener información del barco, su largo, o sea la cantidad de espacios que utilizara
         largo = 0
         for barco in informacionBarcos:
             if barco[1] == barcoActual:
@@ -253,25 +269,30 @@ def validarColisionDeBarcos(posicion):
 
         if dicInstrucciones["Horizontal"]:
             if dicInstrucciones["Positivo"]:
+                #Se obtiene la posicion futura en horizontal positivo
                 for i in range(largo):
                     posicionFutura += [[posicionActual[0]] + [posicionActual[1] + i]]
                 return posicionFutura
             else:
+                # Se obtiene la posicion futura en horizontal negativo
                 for i in range(largo):
                     posicionFutura += [[posicionActual[0]] + [posicionActual[1] - i]]
                 return posicionFutura
         else:
             if dicInstrucciones["Positivo"]:
+                # Se obtiene la posicion futura en vertical positivo
                 for i in range(largo):
                     posicionFutura += [[posicionActual[0] - i ] + [posicionActual[1]]]
                 return posicionFutura
             else:
+                # Se obtiene la posicion futura en vertical negativo
                 for i in range(largo):
                     posicionFutura += [[posicionActual[0] + i] + [posicionActual[1]]]
                 return posicionFutura
 
 
     posicionFutura = revisarPosicionFutura(posicion)
+    #Se itera en las posiciones de todos los barcos y en la posicion futura obtenida para saber si hay colision
     for llave in dicPosicionesBarcos:
         for contador in range(len(posicionFutura)):
             if posicionFutura[contador] in dicPosicionesBarcos[llave] and llave != dicInstrucciones["Barco"]:
@@ -337,6 +358,24 @@ def configurarDirecciones(direccion):
 
 
 def cargarPantallaJuego():
+    """Cargar la pantalla de juego
+
+         Entradas:
+             No hay
+         Precondiciones:
+             No hay
+         Salidas:
+             No hay
+         Proceso:
+             1. Se llaman las variables globales requeridas
+             2. Se carga la musica de fondo
+             3.Se crea la ventana de juego
+            4.Los contenedores del enemigo y del usuario
+            5.Se cargan las matrices de tablero
+            6.En los contenedores de estatus se colocan los estatus del enemigo y usuario
+            7.Se hace el disparo con la funcionValidar tipo de ataque y de esta forma se
+            van llamando a las demas funciones
+         """
     global ventanaRoot
     global matrizTableroBot
     global matrizTableroUsuario
@@ -344,6 +383,9 @@ def cargarPantallaJuego():
     global disparoSeleccionado
     global estatusActualBot
     global estatusActualUsuario
+    pygame.init()
+    pygame.mixer.music.load("musica.mp3")
+    pygame.mixer.music.play()
 
     ventanaRoot.destroy()
     ventanaRoot = tkinter.Tk()
@@ -450,7 +492,7 @@ def cargarPantallaJuego():
         (5, "Portaviones Con Daño", "red","1"),
         (6, "Acorazado Sin Daño", "yellow","2"),
         (7, "Acorazado Con Daño", "red","2"),
-        (8, "Buque de Guerra Sin Daño", "pink","3"),
+        (8, "Buque de Guerra Sin Daño", "magenta","3"),
         (9, "Buque de Guerra con Daño", "red","3"),
         (10, "Submarino Sin Daño", "cyan","4"),
         (11, "Submarino con Daño", "red","4"),
@@ -570,6 +612,20 @@ def ataqueAlEnemigo(evento):
 
 
 def revisarGanador():
+    """Valida si hay un ganador
+
+        Entradas:
+            No hay
+        Precondiciones:
+            No hay
+        Salidas:
+            No hay
+        Proceso:
+            1. Se llaman las variables globales requeridas
+            2. se crea un conjunto para guardar los barcos que hayan sidos destruidos totalmente
+            3.Se itera y se guardan en el conjunto los barcos hundidos
+            4.si hay un total de 5 barcos se da un ganador
+        """
     global ventanaRoot
     global dicPosicionesBarcos
     global dicPosicionesBarcosBot
@@ -603,6 +659,8 @@ def validarAtaqueAcertado():
           algun tipo de ataque
         4.Se valida si hay un barco del bot en una posicion afectada y si es asi se cambia
          su color a verde
+        5.Si la posicion se ve afectada se borra y se guarda en el estatus actual del bot para se
+        presentadas luego
     """
     global posicionAfectada
     global dicPosicionesBarcosBot
@@ -638,6 +696,7 @@ def validarAtaqueAcertadoBot(posicionDisparada):
           algun tipo de ataque
         4.Se valida si hay un barco del bot en una posicion afectada y si es asi se cambia
          su color a verde
+        5.La posicion afectada se borra del dic de posiciones para evitar validaciones repetidas
     """
     global dicPosicionesBarcos
     global matrizTableroUsuario
@@ -650,37 +709,84 @@ def validarAtaqueAcertadoBot(posicionDisparada):
 
 
 def actualizarDisparo(tipoDisparo):
+    """Valida el tipo ataque hacia el enemigo
+
+        Entradas:
+            tipo de disparo
+        Precondiciones:
+            No hay
+        Salidas:
+            No hay
+        Proceso:
+            1. Se llaman las variables globales requeridas
+            2. Se actualiza disparo selccionado por el disparo recibido
+        """
     global disparoSeleccionado
     disparoSeleccionado["Disparo"] = tipoDisparo
 
 
 def cargarPantallaFinJuego(usuarioGana):
+    """Pantalla de fin de juego
+
+        Entradas:
+            Si el usuario es ganador en valor booleano
+        Precondiciones:
+            No hay
+        Salidas:
+            No hay
+        Proceso:
+            1.Se llaman las variables globales requeridas
+            2.Se destruye la ventana anterior
+            3.Se carga la ventana con la imagen, boton de salir y volver al inicio
+            4.Si el usuario es le ganador se muestra un label con la palabra ganador de lo contrario
+            se muestra perdedor
+        """
     global ventanaRoot
     ventanaRoot.destroy()
-
-    if usuarioGana:
-        print("Ganador")
-    else:
-        print("Perdedor")
-
     ventanaRoot = tkinter.Tk()
     ventanaRoot.title("Fin de juego")
 
     backgroundCanvas = Canvas(ventanaRoot, width=602, height=390)
     backgroundCanvas.grid(row=0, column=0)
 
+
     # Insertar imagen background
     imagenBackground = ImageTk.PhotoImage(Image.open("background.jpg"))
     backgroundCanvas.create_image(0, 0, anchor=NW, image=imagenBackground)
 
-    boton = Button(ventanaRoot, text="Salir", command=lambda: ventanaRoot.destroy())
-    boton.grid(row=0, column=0, sticky=NW)
-    boton.config(font=("helvetica", 20, "underline italic"))
+    botonSalir = Button(ventanaRoot, text="Salir", command=lambda: ventanaRoot.destroy())
+    botonSalir.grid(row=0, column=0, sticky=SE)
+    botonSalir.config(font=("helvetica", 20, "underline italic"))
+    botonVolverInicio = Button(ventanaRoot, text="Volver al Inicio", command=lambda: cargarPantallaInicio())
+    botonVolverInicio.grid(row=0, column=0, sticky=NW)
+    botonVolverInicio.config(font=("helvetica", 20, "underline italic"))
+
+    if usuarioGana:
+        etiquetaGanador = Label(ventanaRoot, text="Ganador", anchor=W)
+        etiquetaGanador.config(font=("helvetica", 35, "underline italic"))
+        etiquetaGanador.grid(row=0, column=0, pady=10)
+    else:
+        etiquetaGanador = Label(ventanaRoot, text="Perdedor", anchor=W)
+        etiquetaGanador.config(font=("helvetica", 35, "underline italic"))
+        etiquetaGanador.grid(row=0, column=0, pady=10)
 
     ventanaRoot.mainloop()
 
 
 def estatusBarcosBot(barco):
+    """Cambia el estatus de los barcos
+
+        Entradas:
+            barco
+        Precondiciones:
+            No hay
+        Salidas:
+            No hay
+        Proceso:
+            1. Se llaman las variables globales requeridas
+            2. Si el barco afectado aun tiene posiciones se le resta una
+            3. Si el barco afectado se queda sin posiciones se cambia su estatus a hundido
+        """
     global estatusActualBot
     if estatusActualBot[barco][1] > 1:
         estatusActualBot[barco][1] -= 1
@@ -691,6 +797,19 @@ def estatusBarcosBot(barco):
 
 
 def estatusBarcosUsuario(barco):
+    """Cambia el estatus de los barcos
+
+         Entradas:
+             barco
+         Precondiciones:
+             No hay
+         Salidas:
+             No hay
+         Proceso:
+             1. Se llaman las variables globales requeridas
+             2. Si el barco afectado aun tiene posiciones se le resta una
+             3. Si el barco afectado se queda sin posiciones se cambia su estatus a hundido
+         """
     global dicPosicionesBarcos
     global estatusActualUsuario
     if estatusActualUsuario[barco][1] > 1:
@@ -705,7 +824,7 @@ def estatusBarcosUsuario(barco):
 
 
 # Variables globales
-ventanaRoot = ""
+ventanaRoot = tkinter.Tk()
 matrizTableroUsuario = [[0 for j in range(10)] for i in range(10)]
 matrizTableroBot = [[0 for j in range(10)] for i in range(10)]
 informacionBarcos = [
